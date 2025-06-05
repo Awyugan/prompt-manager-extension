@@ -1,0 +1,142 @@
+/* content_script.css */
+
+/* General Container Styles */
+.prompt-manager-container {
+  position: fixed;
+  top: 70px; /* Adjusted for better visibility */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 450px;
+  max-height: 60vh; /* Use viewport height for responsiveness */
+  border-radius: 12px;
+  padding: 20px;
+  z-index: 2147483647; /* Max z-index */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+}
+
+.prompt-manager-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.prompt-manager-search-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid transparent; /* Border will be set by theme */
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.prompt-manager-search-input:focus {
+  outline: none;
+  border-color: #007aff; /* Apple blue focus */
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
+}
+
+.prompt-manager-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  flex-grow: 1; /* Allow list to take available space */
+}
+
+.prompt-manager-list-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 4px; /* Space between items */
+  line-height: 1.4;
+}
+
+.prompt-manager-list-item strong {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.prompt-manager-list-item span {
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+
+.prompt-manager-list-item.no-prompts {
+  text-align: center;
+  padding: 20px;
+  opacity: 0.6;
+}
+
+/* Light Theme (Default) */
+.prompt-manager-container {
+  background-color: #f9f9f9; /* Off-white */
+  color: #333;
+  border: 1px solid #e0e0e0;
+}
+
+.prompt-manager-title {
+  color: #111;
+}
+
+.prompt-manager-search-input {
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #d1d1d1;
+}
+
+.prompt-manager-list-item:hover {
+  background-color: #efefef;
+}
+
+.prompt-manager-list-item.selected {
+  background-color: #007aff;
+  color: white;
+}
+.prompt-manager-list-item.selected span {
+  opacity: 0.9;
+}
+
+
+/* Dark Theme */
+@media (prefers-color-scheme: dark) {
+  .prompt-manager-container {
+    background-color: #2c2c2e; /* Dark grey */
+    color: #f5f5f7;
+    border: 1px solid #424245;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  .prompt-manager-title {
+    color: #f5f5f7;
+  }
+
+  .prompt-manager-search-input {
+    background-color: #3a3a3c;
+    color: #f5f5f7;
+    border: 1px solid #545458;
+  }
+
+  .prompt-manager-search-input:focus {
+    border-color: #0a84ff; /* Apple blue dark mode focus */
+    box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3);
+  }
+
+  .prompt-manager-list-item:hover {
+    background-color: #4a4a4c;
+  }
+  
+  .prompt-manager-list-item.selected {
+    background-color: #0a84ff;
+    color: white;
+  }
+  .prompt-manager-list-item.selected span {
+    opacity: 1;
+  }
+}

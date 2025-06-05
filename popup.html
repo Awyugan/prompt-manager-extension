@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Prompt Manager</title>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: sans-serif;
+      width: 300px;
+      padding: 10px;
+    }
+    h1 {
+      font-size: 16px;
+      margin-top: 0;
+    }
+    #promptList {
+      list-style: none;
+      padding: 0;
+    }
+    #promptList li {
+      padding: 5px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+    }
+    #promptList li:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <h1>My Prompts</h1>
+  <ul id="promptList">
+    <!-- Prompts will be loaded here by popup.js -->
+  </ul>
+  <button id="managePrompts">Manage Prompts</button>
+  <script src="popup.js"></script>
+</body>
+</html>

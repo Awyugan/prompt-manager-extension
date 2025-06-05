@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+    /* Add more styles for your options page here */
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="pageTitle"></h1>
+    <p style="margin-bottom: 5px;"><a href="settings.html" id="configureApiKeyLink"></a></p>
+    <p id="managePromptsDescriptionText"></p>
+
+    <h2 id="generalSettingsHeadingText"></h2> <!-- Assuming a general settings heading -->
+    <div class="form-group">
+        <label for="languageSelect" id="languageSettingLabelText"></label>
+        <select id="languageSelect" name="languageSelect">
+            <option value="en" id="langEnglishOption"></option>
+            <option value="zh" id="langChineseOption"></option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="autoTagging" id="autoTaggingLabelText"></label>
+        <input type="checkbox" id="autoTagging" name="autoTagging">
+    </div>
+
+    <!-- CRUD operations for prompts will be implemented here -->
+    <h2 id="addNewPromptHeadingText"></h2>
+    <form id="addPromptForm">
+      <div>
+        <label for="promptTitle" id="promptTitleLabelText"></label><br>
+        <input type="text" id="promptTitle" name="title" style="width: 90%;"><br><br>
+      </div>
+      <div>
+        <label for="promptContent" id="promptContentLabelText"></label><br>
+        <textarea id="promptContent" name="promptContent" rows="4" required></textarea><br>
+
+        <label for="promptTags" id="promptTagsLabelText"></label><br>
+        <input type="text" id="promptTags" name="promptTags"><br>
+
+        <label for="promptEffectUrl" id="promptEffectUrlLabelText"></label><br>
+        <input type="text" id="promptEffectUrl" name="promptEffectUrl"><br><br>
+
+        <button type="submit" id="saveBtn"></button>
+      </div>
+    </form>
+
+    <h2 id="existingPromptsHeadingText"></h2>
+    <div id="existingPromptsContainer">
+      <!-- Prompts will be listed here -->
+    </div>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>
