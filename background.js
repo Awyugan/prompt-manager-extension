@@ -198,7 +198,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     } else {
       console.log("Automatic AI tagging is disabled for context menu. Using default title and no tags.");
     }
-    savePrompt(title, selectedText, tags, sourceUrl);
+    // 保证 effectUrl 字段用于来源，且内容保留原始换行
+    savePrompt(title, selectedText, tags, sourceUrl, '', '', { effectUrl: sourceUrl });
   }
 });
 

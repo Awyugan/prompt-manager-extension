@@ -89,6 +89,18 @@
       }
     }
   },
+  "addNewPromptButton": {
+    "message": "Add New Prompt",
+    "description": "Button label for adding a new prompt"
+  },
+  "saveButton": {
+    "message": "Save",
+    "description": "Button label for saving"
+  },
+  "cancelButton": {
+    "message": "Cancel",
+    "description": "Button label for cancelling"
+  },
   "recycleBinRetentionLabel": {
     "message": "Recycle Bin Retention (days):",
     "description": "Label for the recycle bin retention period setting."
@@ -120,5 +132,25 @@
   "permanentlyDeleteButtonLabel": {
     "message": "Delete Permanently",
     "description": "Label for the permanently delete button in the recycle bin."
+  },
+  "clearRecycleBinButtonLabel": {
+    "message": "Clear Recycle Bin",
+    "description": "Label for the clear recycle bin button."
+  },
+  "clearRecycleBinConfirmation": {
+    "message": "Are you sure you want to clear the recycle bin? This action cannot be undone.",
+    "description": "Confirmation prompt for clearing the recycle bin."
+  },
+  "clearRecycleBinError": {
+    "message": "Failed to clear. Please try again.",
+    "description": "Error message when clearing the recycle bin fails."
+  },
+  "customSystemPromptLabel": {
+    "message": "Custom System Prompt",
+    "description": "Label for the custom system prompt textarea in settings."
+  },
+  "customSystemPromptDescription": {
+    "message": "Define a custom system-level prompt that will be implicitly prepended to your actual prompts when interacting with certain AI models. This can be used to set context, tone, or provide specific instructions to the AI.",
+    "description": "Description for the custom system prompt feature in settings."
   }
 }

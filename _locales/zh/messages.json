@@ -89,6 +89,18 @@
       }
     }
   },
+  "addNewPromptButton": {
+    "message": "新增提示词",
+    "description": "用于添加新提示词的按钮"
+  },
+  "saveButton": {
+    "message": "保存",
+    "description": "用于保存操作的按钮"
+  },
+  "cancelButton": {
+    "message": "取消",
+    "description": "用于取消操作的按钮"
+  },
   "recycleBinRetentionLabel": {
     "message": "回收站保留天数：",
     "description": "回收站保留期限设置的标签。"
@@ -120,5 +132,25 @@
   "permanentlyDeleteButtonLabel": {
     "message": "永久删除",
     "description": "回收站中永久删除按钮的标签。"
+  },
+  "clearRecycleBinButtonLabel": {
+    "message": "清空回收站",
+    "description": "回收站清空按钮的标签。"
+  },
+  "clearRecycleBinConfirmation": {
+    "message": "确定要清空回收站吗？此操作无法撤销。",
+    "description": "清空回收站操作的确认提示。"
+  },
+  "clearRecycleBinError": {
+    "message": "清空失败，请重试。",
+    "description": "清空回收站失败时的错误提示。"
+  },
+  "customSystemPromptLabel": {
+    "message": "自定义系统提示",
+    "description": "设置中自定义系统提示文本区域的标签。"
+  },
+  "customSystemPromptDescription": {
+    "message": "定义一个自定义的系统级提示，在与某些AI模型交互时，它将隐式地添加到您的实际提示之前。这可用于设置上下文、语气或向AI提供特定指令。",
+    "description": "设置中自定义系统提示功能的描述。"
   }
 }

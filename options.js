@@ -45,7 +45,6 @@ function applyOptionsPageLocalizations() {
         'promptTagsLabelText': 'promptTagsLabel',
         'promptEffectUrlLabelText': 'promptEffectUrlLabel',
         'promptNotesLabelText': 'promptNotesLabel',
-        // saveBtn is handled dynamically based on edit/add mode
         'existingPromptsHeadingText': 'existingPromptsHeading',
     };
 
@@ -365,7 +364,56 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- Prompt Management Functions (defined within DOMContentLoaded to access shared vars like existingPromptsContainer) ---
-    function savePrompt(promptIdToEdit, title, content, tagsArray, effectUrl, notes) { // Add notes parameter
+function clearRecycleBin() {
+    if (!confirm(chrome.i18n.getMessage('clearRecycleBinConfirmation') || '确定要清空回收站吗？此操作无法撤销。')) {
+        return;
+    }
+    chrome.storage.local.set({ deletedPrompts: [] }, function() {
+        if (chrome.runtime.lastError) {
+            console.error('[clearRecycleBin] Error:', chrome.runtime.lastError.message);
+            alert(chrome.i18n.getMessage('clearRecycleBinError') || '清空失败，请重试。');
+            return;
+        }
+        console.log('[clearRecycleBin] 回收站已清空');
+        renderDeletedPrompts();
+    });
+}
+
+function handlePermanentlyDeletePrompt(promptId) {
+    if (!promptId) {
+        console.error('[handlePermanentlyDeletePrompt] promptId is missing');
+        return;
+    }
+    if (!confirm(chrome.i18n.getMessage('permanentlyDeleteConfirmation') || '确定要永久删除该提示吗？此操作无法撤销。')) {
+        return;
+    }
+    chrome.storage.local.get({ deletedPrompts: [] }, function(data) {
+        if (chrome.runtime.lastError) {
+            console.error('[handlePermanentlyDeletePrompt] Error during storage.get:', chrome.runtime.lastError.message);
+            alert(chrome.i18n.getMessage('permanentlyDeleteError') || '删除失败，请重试。');
+            return;
+        }
+        let deletedPrompts = data.deletedPrompts || [];
+        const idx = deletedPrompts.findIndex(p => p.id === promptId);
+        if (idx === -1) {
+            console.error('[handlePermanentlyDeletePrompt] Prompt not found in deletedPrompts, ID:', promptId);
+            alert(chrome.i18n.getMessage('permanentlyDeleteNotFound') || '未找到要删除的数据。');
+            return;
+        }
+        deletedPrompts.splice(idx, 1);
+        chrome.storage.local.set({ deletedPrompts }, function() {
+            if (chrome.runtime.lastError) {
+                console.error('[handlePermanentlyDeletePrompt] Error during storage.set:', chrome.runtime.lastError.message);
+                alert(chrome.i18n.getMessage('permanentlyDeleteError') || '删除失败，请重试。');
+                return;
+            }
+            console.log('[handlePermanentlyDeletePrompt] Prompt permanently deleted, ID:', promptId);
+            renderDeletedPrompts();
+        });
+    });
+}
+
+function savePrompt(promptIdToEdit, title, content, tagsArray, effectUrl, notes) { // Add notes parameter
         chrome.storage.local.get({ prompts: [] }, function(data) {
             let prompts = data.prompts;
             const currentTime = new Date().toISOString();
@@ -393,343 +441,391 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // 行内编辑辅助函数
+    function showEditForm({prompt, container, onCancel}) {
+    // 全局移除所有编辑表单，并自动保存有变动且合法的内容
+    let needRender = false;
+document.querySelectorAll('.edit-form-container').forEach(f => {
+    const lastForm = f.querySelector('form');
+    if (lastForm) {
+        const title = lastForm.querySelector('#editPromptTitle').value.trim();
+        const content = lastForm.querySelector('#editPromptContent').value.trim();
+        const tags = lastForm.querySelector('#editPromptTags').value.split(',').map(t=>t.trim()).filter(Boolean);
+        const effectUrl = lastForm.querySelector('#editPromptEffectUrl').value.trim();
+        const notes = lastForm.querySelector('#editPromptNotes').value.trim();
+        const id = lastForm.querySelector('#editPromptId')?.value;
+        if (title && content) {
+            if (id) {
+                savePromptFromForm({
+                    prompt: {id, title, content, tags, effectUrl, notes},
+                    form: lastForm,
+                    onSaved: (changed) => { needRender = needRender || changed; }
+                });
+            } else {
+                savePromptFromForm({
+                    prompt: null,
+                    form: lastForm,
+                    onSaved: (changed) => { needRender = needRender || changed; }
+                });
+            }
+        }
+    }
+    f.remove();
+});
+// 如果自动保存导致 renderPrompts，则直接 return，不再插入新表单
+if (needRender) return;
+    // 构建表单
+    const formDiv = document.createElement('div');
+    formDiv.className = 'edit-form-container';
+    formDiv.innerHTML = `
+        <form class="edit-prompt-form">
+            <input type="hidden" id="editPromptId" value="${prompt?.id||''}">
+            <div class="form-group">
+                <label data-i18n-key="promptTitleLabel">Title</label>
+                <input type="text" id="editPromptTitle" value="${prompt?.title ? escapeHtml(prompt.title) : ''}" required placeholder="${chrome.i18n.getMessage('promptTitlePlaceholder')||''}">
+            </div>
+            <div class="form-group">
+                <label data-i18n-key="promptContentLabel">Content</label>
+                <textarea id="editPromptContent" required placeholder="${chrome.i18n.getMessage('promptContentPlaceholder')||''}">${prompt?.content ? escapeHtml(prompt.content) : ''}</textarea>
+            </div>
+            <div class="form-group">
+                <label data-i18n-key="promptTagsLabel">Tags</label>
+                <input type="text" id="editPromptTags" value="${prompt?.tags?.join(', ')||''}" placeholder="tag1, tag2, ...">
+            </div>
+            <div class="form-group">
+                <label data-i18n-key="promptEffectUrlLabel">Effect URL</label>
+                <input type="url" id="editPromptEffectUrl" value="${prompt?.effectUrl||''}" data-i18n-placeholder-key="promptEffectUrlPlaceholder" placeholder="${chrome.i18n.getMessage('promptEffectUrlPlaceholder')||'https://example.com'}">
+            </div>
+            <div class="form-group">
+                <label data-i18n-key="promptNotesLabel">Notes</label>
+                <textarea id="editPromptNotes" data-i18n-placeholder-key="promptNotesPlaceholder" placeholder="${chrome.i18n.getMessage('promptNotesPlaceholder')||'Enter notes...'}">${prompt?.notes ? escapeHtml(prompt.notes) : ''}</textarea>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="ai-generate-btn" data-i18n-key="aiGenerateButton">${chrome.i18n.getMessage('aiGenerateButton')||'AI生成'}</button>
+                <button type="button" class="cancel-edit-btn" data-i18n-key="cancelButton">${chrome.i18n.getMessage('cancelButton')||'Cancel'}</button>
+                <button type="submit" class="save-btn primary" data-i18n-key="saveButton">${chrome.i18n.getMessage('saveButton')||'Save'}</button>
+            </div>
+        </form>
+    `;
+    // 取消按钮
+    formDiv.querySelector('.cancel-edit-btn').onclick = () => {
+        formDiv.remove();
+        if (onCancel) onCancel();
+    };
+    // AI生成按钮
+    formDiv.querySelector('.ai-generate-btn').onclick = async function() {
+        const aiBtn = this;
+        aiBtn.disabled = true;
+        aiBtn.textContent = chrome.i18n.getMessage('generatingAIText') || 'AI生成中...';
+        const contentInput = formDiv.querySelector('#editPromptContent');
+        const titleInput = formDiv.querySelector('#editPromptTitle');
+        const tagsInput = formDiv.querySelector('#editPromptTags');
+        const contentVal = contentInput.value.trim();
+        const { autoTaggingEnabled, deepseekApiKey } = await new Promise(resolve =>
+            chrome.storage.local.get(['autoTaggingEnabled', 'deepseekApiKey'], resolve)
+        );
+        if (!autoTaggingEnabled || !deepseekApiKey || !contentVal) {
+            aiBtn.textContent = chrome.i18n.getMessage('aiGenerateButton')||'AI生成';
+            aiBtn.disabled = false;
+            alert('未配置AI或内容为空');
+            return;
+        }
+        const ai = await fetchAITitleAndTags(contentVal, deepseekApiKey);
+        if (ai && ai.title) titleInput.value = ai.title;
+        if (ai && ai.tags) tagsInput.value = Array.isArray(ai.tags) ? ai.tags.join(', ') : ai.tags;
+        aiBtn.textContent = chrome.i18n.getMessage('aiGenerateButton')||'AI生成';
+        aiBtn.disabled = false;
+    };
+    // 提交保存
+    formDiv.querySelector('form').onsubmit = function(e) {
+        e.preventDefault();
+        savePromptFromForm({prompt: null, form: formDiv});
+    };
+    container.appendChild(formDiv);
+    try {
+        formDiv.querySelector('#editPromptTitle').focus({preventScroll:true});
+    } catch(e){}
+}
+
+    function savePromptFromForm({prompt, form, onSaved}) {
+    try {
+        // 统一从表单读取 promptId，严格区分编辑/新增
+        const id = form.querySelector('#editPromptId')?.value;
+        const title = form.querySelector('#editPromptTitle').value.trim();
+        const content = form.querySelector('#editPromptContent').value.trim();
+        const tags = form.querySelector('#editPromptTags').value.split(',').map(t=>t.trim()).filter(Boolean);
+        const effectUrl = form.querySelector('#editPromptEffectUrl').value.trim();
+        const notes = form.querySelector('#editPromptNotes').value.trim();
+        if (!title || !content) {
+            alert(chrome.i18n.getMessage('titleAndContentRequired')||'Title and content required');
+            return;
+        }
+        chrome.storage.local.get({ prompts: [] }, function(data){
+            let prompts = data.prompts;
+            let now = new Date().toISOString();
+            if (id) {
+                // 编辑
+                const idx = prompts.findIndex(p=>p.id===id);
+                if (idx>-1) {
+                    const old = prompts[idx];
+                    // 仅有实际变动时才更新
+                    const oldTags = Array.isArray(old.tags) ? old.tags.map(t=>t.trim()).filter(Boolean) : [];
+                    const isChanged = (
+                        old.title !== title ||
+                        old.content !== content ||
+                        old.effectUrl !== effectUrl ||
+                        old.notes !== notes ||
+                        oldTags.join(',') !== tags.join(',')
+                    );
+                    if (!isChanged) {
+                        // 没有变动则不更新 updatedAt，不写入 storage
+                        if (typeof onSaved === 'function') onSaved(false);
+                        return;
+                    }
+                    prompts[idx] = {...old, title, content, tags, effectUrl, notes, updatedAt: now};
+                    chrome.storage.local.set({prompts}, function(){
+                        if (typeof onSaved === 'function') onSaved(true);
+                        renderPrompts();
+                    });
+                    return;
+                }
+            } else {
+                // 新增
+                const newPrompt = {
+                    id: crypto.randomUUID(),
+                    title, content, tags, effectUrl, notes,
+                    createdAt: now, updatedAt: now
+                };
+                prompts.unshift(newPrompt);
+                chrome.storage.local.set({prompts}, function(){
+                    if (typeof onSaved === 'function') onSaved(true);
+                    renderPrompts();
+                });
+            }
+        });
+    } catch (err) {
+        alert('保存失败: '+err.message);
+    }
+}
+
     function renderPrompts() {
-    chrome.storage.local.get({ prompts: [] }, function(data) {
-        const prompts = data.prompts;
-        if (!existingPromptsContainer) { console.error("existingPromptsContainer not found."); return; }
-        existingPromptsContainer.innerHTML = '';
-        if (prompts.length === 0) {
-            existingPromptsContainer.innerHTML = `<p>${chrome.i18n.getMessage('noPromptsSaved') || 'No prompts saved yet.'}</p>`;
-            return;
-        }
-        const ul = document.createElement('ul');
-        ul.className = 'prompt-list';
-        prompts.forEach((prompt, index) => {
-            const li = document.createElement('li');
-            li.className = 'prompt-item';
-
-            const titleDiv = document.createElement('div');
-            titleDiv.className = 'prompt-title';
-            titleDiv.textContent = prompt.title || 'Untitled Prompt';
-
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'prompt-content-preview';
-            contentDiv.textContent = prompt.content ? (prompt.content.substring(0, 100) + (prompt.content.length > 100 ? '...' : '')) : 'No content';
-
-            const tagsDiv = document.createElement('div');
-            tagsDiv.className = 'prompt-tags';
-            if (prompt.tags && prompt.tags.length > 0) {
-                tagsDiv.textContent = prompt.tags.join(', ');
-            } else {
-                tagsDiv.textContent = chrome.i18n.getMessage('noTags') || 'No tags';
+    // 渲染前先全局移除所有 edit-form-container，防止脏表单
+    document.querySelectorAll('.edit-form-container').forEach(f => f.remove());
+        chrome.storage.local.get({ prompts: [] }, function(data) {
+            const prompts = data.prompts;
+            if (!existingPromptsContainer) { console.error("existingPromptsContainer not found."); return; }
+            existingPromptsContainer.innerHTML = '';
+            // 新增按钮
+            const addBtnWrap = document.createElement('div');
+            addBtnWrap.className = 'add-prompt-container';
+            const addBtn = document.createElement('button');
+            addBtn.id = 'addNewPromptBtn';
+            addBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> ${chrome.i18n.getMessage('addNewPromptButton')||'Add New Prompt'}`;
+            addBtn.onclick = () => {
+                // 1. 先移除所有已存在的表单，避免多表单和滚动干扰
+                document.querySelectorAll('.edit-form-container').forEach(el => el.remove());
+                addBtn.style.display = 'none';
+                showEditForm({
+                    prompt: null,
+                    container: existingPromptsContainer,
+                    onCancel: () => { addBtn.style.display = 'flex'; }
+                });
+                // 2. 只插入一次表单，并只滚动一次
+                const editForm = existingPromptsContainer.querySelector('.edit-form-container');
+                if (editForm) {
+                    existingPromptsContainer.insertBefore(editForm, addBtnWrap.nextSibling);
+                }
+            };
+            addBtnWrap.appendChild(addBtn);
+            existingPromptsContainer.appendChild(addBtnWrap);
+            // 若页面加载时有未关闭的编辑表单，自动插入到按钮下方
+            const existEditForm = existingPromptsContainer.querySelector('.edit-form-container');
+            if (existEditForm) {
+                existingPromptsContainer.insertBefore(existEditForm, addBtnWrap.nextSibling);
             }
-
-            const notesDiv = document.createElement('div');
-            notesDiv.className = 'prompt-notes-preview';
-            if (prompt.notes && prompt.notes.trim() !== '') {
-                notesDiv.textContent = (chrome.i18n.getMessage('promptNotesLabel') || 'Notes:') + ' ' + prompt.notes.substring(0, 150) + (prompt.notes.length > 150 ? '...' : '');
-            } else {
-                notesDiv.style.display = 'none';
-            }
-
-            const sourceUrlDiv = document.createElement('div');
-            sourceUrlDiv.className = 'prompt-source-url';
-            if (prompt.sourceUrl && prompt.sourceUrl.trim() !== '') {
-                const link = document.createElement('a');
-                link.href = prompt.sourceUrl;
-                link.target = '_blank';
-                link.textContent = prompt.sourceUrl.length > 70 ? prompt.sourceUrl.substring(0, 67) + '...' : prompt.sourceUrl;
-                sourceUrlDiv.appendChild(document.createTextNode((chrome.i18n.getMessage('sourceUrlLabel') || 'Source') + ': '));
-                sourceUrlDiv.appendChild(link);
-            } else {
-                sourceUrlDiv.style.display = 'none';
-            }
-
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'prompt-actions';
-
-            const editButton = document.createElement('button');
-            editButton.className = 'edit-prompt';
-            editButton.dataset.index = index;
-            editButton.textContent = chrome.i18n.getMessage('editButton') || 'Edit';
-            editButton.addEventListener('click', function() { handleEditPrompt(parseInt(this.dataset.index, 10)); });
-
-            const deleteButton = document.createElement('button');
-            deleteButton.className = 'delete-prompt';
-            deleteButton.dataset.index = index;
-            deleteButton.textContent = chrome.i18n.getMessage('deleteButton') || 'Delete';
-            deleteButton.addEventListener('click', function() { deletePrompt(parseInt(this.dataset.index, 10)); });
-
-            const duplicateButton = document.createElement('button');
-            duplicateButton.className = 'duplicate-prompt';
-            duplicateButton.dataset.promptId = prompt.id; // Use prompt.id for reliable identification
-            duplicateButton.textContent = chrome.i18n.getMessage('duplicateButtonLabel') || 'Duplicate';
-            duplicateButton.addEventListener('click', function() { duplicatePrompt(this.dataset.promptId); });
-
-            actionsDiv.appendChild(editButton);
-            actionsDiv.appendChild(duplicateButton);
-            actionsDiv.appendChild(deleteButton);
-
-            li.appendChild(titleDiv);
-            li.appendChild(contentDiv);
-            li.appendChild(tagsDiv);
-            li.appendChild(notesDiv);
-            const createdDateDiv = document.createElement('div');
-            createdDateDiv.className = 'prompt-created-date';
-            if (prompt.createdAt) {
-                const date = new Date(prompt.createdAt);
-                createdDateDiv.textContent = (chrome.i18n.getMessage('createdOnLabel') || 'Created on:') + ' ' + date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-            } else {
-                createdDateDiv.style.display = 'none'; // Hide if no createdAt, though it should always exist for new prompts
-            }
-
-            li.appendChild(createdDateDiv);
-            li.appendChild(sourceUrlDiv);
-            li.appendChild(actionsDiv);
-            ul.appendChild(li);
-        });
-        existingPromptsContainer.appendChild(ul);
-    });
-}
-
-function duplicatePrompt(promptId) {
-    chrome.storage.local.get({ prompts: [] }, function(data) {
-        let prompts = data.prompts;
-        const originalPrompt = prompts.find(p => p.id === promptId);
-
-        if (!originalPrompt) {
-            console.error('Original prompt not found for duplication, ID:', promptId);
-            return;
-        }
-
-        const currentTime = new Date().toISOString();
-        const duplicateSuffix = chrome.i18n.getMessage('duplicateSuffix') || ' (Copy)';
-
-        const newPrompt = {
-            ...JSON.parse(JSON.stringify(originalPrompt)), // Deep copy
-            id: Date.now().toString(),
-            title: originalPrompt.title + duplicateSuffix,
-            createdAt: currentTime,
-            updatedAt: currentTime,
-            // Reset any version-specific fields if versioning is implemented later
-            // e.g., version: 1, parentId: null (or originalPrompt.id if tracking lineage explicitly)
-        };
-
-        // Insert the new prompt, perhaps next to the original or at the end
-        // For simplicity, adding to the end. Could also find original index and insert after.
-        prompts.push(newPrompt);
-
-        chrome.storage.local.set({ prompts: prompts }, function() {
-            if (chrome.runtime.lastError) {
-                console.error('Error saving duplicated prompt:', chrome.runtime.lastError.message);
+            // 空状态
+            if (prompts.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'empty-state';
+                empty.textContent = chrome.i18n.getMessage('noPromptsSaved') || 'No prompts yet.';
+                existingPromptsContainer.appendChild(empty);
                 return;
             }
-            console.log('Prompt duplicated successfully:', newPrompt.title);
-            renderPrompts(); // Refresh the list to show the new duplicate
+            // 排序：按更新时间倒序
+            prompts.sort((a, b) => {
+                const aTime = a.updatedAt || a.createdAt || '';
+                const bTime = b.updatedAt || b.createdAt || '';
+                return bTime.localeCompare(aTime);
+            });
+            prompts.forEach(prompt => {
+                const item = document.createElement('div');
+                item.className = 'prompt-item';
+                item.innerHTML = `
+                    <div class="prompt-header">
+                        <div class="prompt-title">${escapeHtml(prompt.title || '')}</div>
+                        <div class="prompt-actions">
+                            <button class="edit-prompt-btn" title="${chrome.i18n.getMessage('editButtonLabel')||'编辑'}">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                                ${chrome.i18n.getMessage('editButtonLabel')||'编辑'}
+                            </button>
+                            <button class="duplicate-prompt-btn" title="${chrome.i18n.getMessage('duplicateButtonLabel')||'创建副本'}">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><rect x="3" y="3" width="13" height="13" rx="2"/></svg>
+                                ${chrome.i18n.getMessage('duplicateButtonLabel')||'创建副本'}
+                            </button>
+                            <button class="delete-prompt-btn" title="${chrome.i18n.getMessage('deleteButtonLabel')||'删除'}">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                                ${chrome.i18n.getMessage('deleteButtonLabel')||'删除'}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="prompt-content-preview">${escapeHtml(prompt.content || '').slice(0, 120)}${prompt.content && prompt.content.length > 120 ? '...' : ''}</div>
+                ${prompt.sourceUrl ? `<div class="prompt-source-url" style="margin: 4px 0 4px 0;font-size:12px;color:#888;">
+                  <span class="source-label">${chrome.i18n.getMessage('sourceUrlLabel') || 'Source'}：</span>
+                  <a href="${escapeHtml(prompt.sourceUrl)}" target="_blank" rel="noopener noreferrer" style="color:#1677ff;word-break:break-all;">${escapeHtml(prompt.sourceUrl)}</a>
+                </div>` : ''}
+                <div class="prompt-tags">
+  ${prompt.tags && prompt.tags.length ? prompt.tags.map(tag => `<span class="tag clickable" style="background:#f0f7ff;color:#1677ff;margin-right:6px;cursor:pointer;" onclick="window.open('?tag=${encodeURIComponent(tag)}','_self')">${escapeHtml(tag)}</span>`).join('') : `<span class='tag'>${chrome.i18n.getMessage('noTags')||'无标签'}</span>`}
+</div>
+${prompt.notes ? `<div class="prompt-notes"><span class="label">${chrome.i18n.getMessage('promptNotesLabel')||'备注'}：</span>${escapeHtml(prompt.notes)}</div>` : ''}
+${prompt.effectUrl ? `<div class="prompt-source"><span class="label">${chrome.i18n.getMessage('sourceUrlLabel')||'来源'}：</span><a href="${escapeHtml(prompt.effectUrl)}" target="_blank" rel="noopener noreferrer" style="color:#1677ff;text-decoration:underline;">${escapeHtml(prompt.effectUrl)}</a></div>` : ''}
+                    <div class="prompt-meta">
+                        <span>${chrome.i18n.getMessage('createdLabel')||'创建于'}：${prompt.createdAt ? formatDate(prompt.createdAt) : ''}</span>
+                        <span>${chrome.i18n.getMessage('updatedLabel')||'更新于'}：${prompt.updatedAt ? formatDate(prompt.updatedAt) : ''}</span>
+                    </div>
+                `;
+                // 按钮事件绑定
+                item.querySelector('.edit-prompt-btn').onclick = (e)=>{
+                    e.stopPropagation();
+                    showEditForm({prompt, container:item});
+                };
+                item.querySelector('.delete-prompt-btn').onclick = (e)=>{
+                    e.stopPropagation();
+                    if (confirm(chrome.i18n.getMessage('confirmDeletePrompt')||'确定删除该提示词？')) deletePrompt(prompt.id);
+                };
+                item.querySelector('.duplicate-prompt-btn').onclick = (e)=>{
+                    e.stopPropagation();
+                    duplicatePrompt(prompt.id);
+                };
+                // 点击卡片标题也可编辑
+                item.querySelector('.prompt-title').onclick = (e)=>{
+                    e.stopPropagation();
+                    showEditForm({prompt, container:item});
+                };
+                existingPromptsContainer.appendChild(item);
+            });
         });
-    });
-}
-
-function handleRestorePrompt(promptId) {
-    chrome.storage.local.get({ prompts: [], deletedPrompts: [] }, function(data) {
-        let prompts = data.prompts;
-        let deletedPrompts = data.deletedPrompts;
-
-        const promptToRestoreIndex = deletedPrompts.findIndex(p => p.id === promptId);
-        if (promptToRestoreIndex === -1) {
-            console.error('Prompt to restore not found in recycle bin, ID:', promptId);
-            return;
-        }
-
-        const promptToRestore = deletedPrompts.splice(promptToRestoreIndex, 1)[0];
-        
-        // Remove recycle bin specific properties or update status
-        delete promptToRestore.deletedTimestamp; 
-        // If using a status field: promptToRestore.status = 'active';
-
-        // Add to active prompts
-        prompts.push(promptToRestore);
-
-        // Sort prompts again if needed, e.g., by creation or update time
-        // prompts.sort((a, b) => (new Date(b.createdAt)) - (new Date(a.createdAt)));
-
-        chrome.storage.local.set({ prompts: prompts, deletedPrompts: deletedPrompts }, function() {
-            if (chrome.runtime.lastError) {
-                console.error('Error restoring prompt:', chrome.runtime.lastError.message);
-                // Potentially re-add to deletedPrompts if save fails, or notify user
-                return;
-            }
-            console.log('Prompt restored successfully:', promptToRestore.title);
-            renderPrompts();
-            renderDeletedPrompts();
-        });
-    });
-}
-
-function renderDeletedPrompts() {
-    console.log('[Debug renderDeletedPrompts] Function called.');
-    const container = document.getElementById('deletedPromptsContainer');
-    if (!container) {
-        console.error('Recycle bin container (deletedPromptsContainer) not found.');
-        return;
     }
 
-    chrome.storage.local.get({ deletedPrompts: [] }, function(data) {
-        console.log('[Debug renderDeletedPrompts] Entered storage.get callback.');
-        if (chrome.runtime.lastError) {
-            console.error('[Debug renderDeletedPrompts] Error during storage.get:', chrome.runtime.lastError.message);
-            // If there's an error, data might be undefined or unreliable
-            // We should probably stop further processing in this block
-            return; 
-        }
-        console.log('[Debug renderDeletedPrompts] Data object from storage.get:', data); // Log raw data object
-        // Now, specifically log the deletedPrompts array if data itself is not null/undefined
-        if (data && data.hasOwnProperty('deletedPrompts')) {
-            console.log('[Debug renderDeletedPrompts] deletedPrompts array from storage:', JSON.parse(JSON.stringify(data.deletedPrompts)));
-        } else {
-            console.log('[Debug renderDeletedPrompts] deletedPrompts key not found in data or data is null/undefined.');
-        }
-        const deletedPrompts = data ? data.deletedPrompts : []; // Ensure deletedPrompts is an array even if data is problematic
-        container.innerHTML = ''; // Clear previous content
+    function deletePrompt(promptId) {
+        chrome.storage.local.get({ prompts: [], deletedPrompts: [] }, function(data) {
+            const prompts = data.prompts;
+            const deletedPrompts = data.deletedPrompts;
+            const index = prompts.findIndex(p => p.id === promptId);
+            if (index === -1) {
+                console.error('Prompt to delete not found for id:', promptId);
+                return;
+            }
+            const promptToMove = prompts[index];
+            promptToMove.deletedTimestamp = Date.now();
+            deletedPrompts.push(promptToMove);
+            prompts.splice(index, 1);
+            chrome.storage.local.set({ prompts: prompts, deletedPrompts: deletedPrompts }, function() {
+                renderPrompts();
+                renderDeletedPrompts();
+            });
+        });
+    }
 
+    // 日期格式化工具函数，保证所有时间显示正常
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    try {
+        const d = new Date(dateStr);
+        if (isNaN(d)) return '';
+        // 返回本地化日期时间字符串
+        return d.toLocaleString();
+    } catch (e) {
+        return '';
+    }
+}
+
+// 复制提示词（副本）
+function duplicatePrompt(promptId) {
+    try {
+        chrome.storage.local.get({ prompts: [] }, function(data) {
+            const prompts = data.prompts;
+            const idx = prompts.findIndex(p => p.id === promptId);
+            if (idx === -1) {
+                console.error('duplicatePrompt: 未找到指定 id 的提示词:', promptId);
+                return;
+            }
+            const oldPrompt = prompts[idx];
+            // 深拷贝并生成新 id/timestamp
+            const now = new Date().toISOString();
+            const newPrompt = {
+                ...oldPrompt,
+                id: crypto.randomUUID(),
+                createdAt: now,
+                updatedAt: now
+            };
+            prompts.unshift(newPrompt);
+            chrome.storage.local.set({ prompts }, function() {
+                if (chrome.runtime.lastError) {
+                    console.error('duplicatePrompt: 保存副本失败:', chrome.runtime.lastError.message);
+                    alert('创建副本失败: ' + chrome.runtime.lastError.message);
+                    return;
+                }
+                renderPrompts();
+            });
+        });
+    } catch (e) {
+        console.error('duplicatePrompt: 执行异常:', e);
+        alert('创建副本时发生错误: ' + e.message);
+    }
+}
+
+// HTML转义工具函数，防止XSS和undefined
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, c => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[c]));
+}
+
+// 回收站渲染函数，支持恢复和彻底删除
+function renderDeletedPrompts() {
+    const container = document.getElementById('deletedPromptsContainer');
+    if (!container) return;
+    chrome.storage.local.get({ deletedPrompts: [] }, function(data) {
+        const deletedPrompts = data.deletedPrompts || [];
+        container.innerHTML = '';
         if (deletedPrompts.length === 0) {
             const p = document.createElement('p');
             p.textContent = chrome.i18n.getMessage('recycleBinEmpty') || 'Recycle bin is empty.';
             container.appendChild(p);
             return;
         }
-
-        const ul = document.createElement('ul');
-        ul.className = 'prompt-list deleted-prompt-list';
-
-        // Sort by deletion date, newest first
-        deletedPrompts.sort((a, b) => (b.deletedTimestamp || 0) - (a.deletedTimestamp || 0));
-
-        deletedPrompts.forEach((prompt, index) => { // Index here is after sorting, might not be original index
-            const li = document.createElement('li');
-            li.className = 'prompt-item deleted-prompt-item';
-
-            const titleDiv = document.createElement('div');
-            titleDiv.className = 'prompt-title';
-            titleDiv.textContent = prompt.title || (chrome.i18n.getMessage('untitled') || 'Untitled');
-
-            const contentPreviewDiv = document.createElement('div');
-            contentPreviewDiv.className = 'prompt-content-preview';
-            contentPreviewDiv.textContent = prompt.content ? (prompt.content.substring(0, 100) + (prompt.content.length > 100 ? '...' : '')) : (chrome.i18n.getMessage('noContentPreview') || 'No content preview');
-
-            const deletedDateDiv = document.createElement('div');
-            deletedDateDiv.className = 'prompt-deleted-date';
-            if (prompt.deletedTimestamp) {
-                const date = new Date(prompt.deletedTimestamp);
-                deletedDateDiv.textContent = (chrome.i18n.getMessage('deletedOnLabel') || 'Deleted on:') + ' ' + date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-            }
-
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'prompt-actions';
-
-            const restoreButton = document.createElement('button');
-            restoreButton.className = 'restore-prompt-btn';
-            restoreButton.textContent = chrome.i18n.getMessage('restoreButtonLabel') || 'Restore';
-            restoreButton.dataset.promptId = prompt.id;
-            restoreButton.addEventListener('click', function() { handleRestorePrompt(this.dataset.promptId); });
-
-            const permDeleteButton = document.createElement('button');
-            permDeleteButton.className = 'perm-delete-prompt-btn';
-            permDeleteButton.textContent = chrome.i18n.getMessage('permanentlyDeleteButtonLabel') || 'Delete Permanently';
-            permDeleteButton.dataset.promptId = prompt.id;
-            // permDeleteButton.addEventListener('click', function() { /* handlePermanentlyDeletePrompt(this.dataset.promptId); */ });
-            permDeleteButton.disabled = true; // Permanent delete functionality not yet implemented
-
-            actionsDiv.appendChild(restoreButton);
-            actionsDiv.appendChild(permDeleteButton);
-
-            li.appendChild(titleDiv);
-            li.appendChild(contentPreviewDiv);
-            li.appendChild(deletedDateDiv);
-            li.appendChild(actionsDiv);
-            ul.appendChild(li);
+        deletedPrompts.forEach(prompt => {
+            const li = document.createElement('div');
+            li.className = 'prompt-item deleted';
+            li.innerHTML = `
+                <div class="prompt-title">${escapeHtml(prompt.title || '')}</div>
+                <div class="prompt-content-preview">${escapeHtml(prompt.content || '').slice(0, 120)}${prompt.content && prompt.content.length > 120 ? '...' : ''}</div>
+                <button class="restore-btn">${chrome.i18n.getMessage('restoreButtonLabel')||'恢复'}</button>
+                <button class="perm-delete-btn">${chrome.i18n.getMessage('permanentlyDeleteButtonLabel')||'彻底删除'}</button>
+            `;
+            li.querySelector('.restore-btn').onclick = () => handleRestorePrompt(prompt.id);
+            li.querySelector('.perm-delete-btn').onclick = () => handlePermanentlyDeletePrompt(prompt.id);
+            container.appendChild(li);
         });
-        container.appendChild(ul);
     });
 }
 
-    function handleEditPrompt(index) {
-    chrome.storage.local.get({ prompts: [] }, function(data) {
-        const promptToEdit = data.prompts[index];
-        if (promptToEdit && addPromptForm) { // Ensure addPromptForm exists
-            // Populate the form fields
-            if (promptIdInput) promptIdInput.value = promptToEdit.id || '';
-            if (promptTitleInput) promptTitleInput.value = promptToEdit.title || '';
-            
-            const promptContentTextarea = addPromptForm.elements.promptContent; 
-            if (promptContentTextarea) promptContentTextarea.value = promptToEdit.content || '';
-            
-            if (promptTagsInput) promptTagsInput.value = (promptToEdit.tags && Array.isArray(promptToEdit.tags)) ? promptToEdit.tags.join(', ') : '';
-            
-            const promptEffectUrlInput = addPromptForm.elements.promptEffectUrl;
-            if (promptEffectUrlInput) promptEffectUrlInput.value = promptToEdit.effectUrl || '';
-
-            // Populate notes
-            if (promptNotesTextarea) promptNotesTextarea.value = promptToEdit.notes || '';
-
-            if (saveBtn) saveBtn.textContent = chrome.i18n.getMessage('updatePromptButton') || 'Update Prompt';
-            if (promptTitleInput) {
-                 promptTitleInput.focus();
-                 window.scrollTo(0, 0); // Scroll to top to see the form
-            }
-            // editingPromptIndex = index; // This global variable might not be necessary if relying on promptIdInput.value
-        } else {
-            if (!addPromptForm) console.error("addPromptForm not found during edit.");
-            if (!promptToEdit) console.error("Prompt data not found for index:", index);
-        }
-    });
-}
-
-function deletePrompt(index) {
-    chrome.storage.local.get({ prompts: [], deletedPrompts: [] }, function(data) {
-        let prompts = data.prompts;
-        let deletedPrompts = data.deletedPrompts;
-
-        const promptToMove = prompts[index];
-        if (!promptToMove) {
-            console.error('Prompt to move to recycle bin not found at index:', index);
-            return;
-        }
-
-        // Use a new localization key for moving to recycle bin
-        const confirmMessage = (chrome.i18n.getMessage('moveToRecycleBinConfirmation') || 'Are you sure you want to move the prompt "{title}" to the Recycle Bin?').replace('{title}', promptToMove.title);
-
-        if (confirm(confirmMessage)) {
-            // Add deletion timestamp
-            promptToMove.deletedTimestamp = Date.now();
-            console.log('[Debug deletePrompt] Prompt being moved:', JSON.parse(JSON.stringify(promptToMove)));
-
-            // Add to deletedPrompts array
-            deletedPrompts.push(promptToMove);
-
-            // Remove from original prompts array
-            prompts.splice(index, 1);
-            
-            console.log('[Debug deletePrompt] Prompts array before storage.set:', JSON.parse(JSON.stringify(prompts)));
-            console.log('[Debug deletePrompt] DeletedPrompts array before storage.set:', JSON.parse(JSON.stringify(deletedPrompts)));
-
-            chrome.storage.local.set({ prompts: prompts, deletedPrompts: deletedPrompts }, function() {
-                if (chrome.runtime.lastError) { 
-                    console.error('[Debug deletePrompt] Error during chrome.storage.local.set:', chrome.runtime.lastError.message); 
-                    // Optional: Revert changes in memory if save fails, or notify user more clearly
-                    return; 
-                } else {
-                    console.log('[Debug deletePrompt] Successfully updated storage.');
-                }
-                renderPrompts(); 
-                renderDeletedPrompts(); // Update recycle bin view
-                // console.log('Prompt moved to recycle bin:', promptToMove);
-            });
-        }
-    });
-}
-
-    // --- Recycle Bin Retention Logic ---
+// --- Recycle Bin Retention Logic ---
     if (recycleBinRetentionInput) {
         recycleBinRetentionInput.addEventListener('change', function() {
             let days = parseInt(this.value, 10);
@@ -761,6 +857,12 @@ function deletePrompt(index) {
         applyOptionsPageLocalizations(); 
         renderPrompts(); 
         renderDeletedPrompts(); // Render deleted prompts on load
+
+        // 绑定清空回收站按钮事件
+        const clearRecycleBinButton = document.getElementById('clearRecycleBinButton');
+        if (clearRecycleBinButton) {
+            clearRecycleBinButton.addEventListener('click', clearRecycleBin);
+        }
 
         // Load Recycle Bin Retention Days
         if (recycleBinRetentionInput) {

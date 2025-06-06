@@ -117,6 +117,24 @@ textarea {
 
 button[type="submit"],
 .prompt-actions button {
+  background: #1677ff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 12px;
+  margin-left: 6px;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.prompt-actions button:hover {
+  background: #0056b3;
+  color: #fff;
+}
+
     background-color: #007aff; /* 苹果蓝 */
     color: white;
     border: none;
@@ -183,19 +201,232 @@ input[type="checkbox"]:checked::before {
     margin-top: 5px;
 }
 
-/* 提示列表样式 */
-.prompt-list {
-    list-style-type: none;
-    padding: 0;
+/* 提示词列表容器 */
+.prompts-list {
+    margin-top: 15px;
 }
 
+/* 提示词项 */
 .prompt-item {
-    padding: 15px;
-    border: 1px solid #e5e5e5;
+    background: #fff;
+    border: 1px solid #e0e0e0;
     border-radius: 8px;
-    margin-bottom: 15px;
-    background-color: #f9f9f9; /* 列表项背景 */
+    margin-bottom: 12px;
+    padding: 15px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
+
+.prompt-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.prompt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+.prompt-title {
+    font-weight: 600;
+    font-size: 1.05em;
+    color: #1d1d1f;
+    margin: 0;
+    flex: 1;
+}
+
+.preview-content {
+    color: #666;
+    font-size: 0.95em;
+    margin: 8px 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+}
+
+.prompt-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85em;
+    color: #86868b;
+    margin-top: 10px;
+}
+
+.prompt-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.tag {
+    background: #f0f0f0;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    color: #666;
+}
+
+.prompt-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    justify-content: flex-end;
+}
+
+.prompt-actions button {
+  background: #1677ff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 12px;
+  margin-left: 6px;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.prompt-actions button:hover {
+  background: #0056b3;
+  color: #fff;
+}
+
+    padding: 4px 12px;
+    font-size: 0.85em;
+    border-radius: 4px;
+    border: 1px solid #d2d2d7;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.prompt-actions button:hover {
+    background: #f5f5f7;
+}
+
+.prompt-actions button.primary {
+    background: #007aff;
+    color: white;
+    border-color: #007aff;
+}
+
+.prompt-actions button.primary:hover {
+    background: #0062cc;
+    border-color: #0062cc;
+}
+
+/* 编辑表单样式 */
+.edit-form-container {
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.edit-prompt-form .form-group {
+    margin-bottom: 15px;
+}
+
+.edit-prompt-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #333;
+}
+
+.edit-prompt-form input[type="text"],
+.edit-prompt-form input[type="url"],
+.edit-prompt-form textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d2d2d7;
+    border-radius: 6px;
+    font-size: 0.95em;
+}
+
+.edit-prompt-form textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.form-actions button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.form-actions .save-btn {
+    background: #007aff;
+    color: white;
+    border: 1px solid #007aff;
+}
+
+.form-actions .save-btn:hover {
+    background: #0062cc;
+    border-color: #0062cc;
+}
+
+.form-actions .cancel-edit-btn {
+    background: #fff;
+    border: 1px solid #d2d2d7;
+    color: #333;
+}
+
+.form-actions .cancel-edit-btn:hover {
+    background: #f5f5f7;
+}
+
+/* 新增按钮样式 */
+.add-prompt-container {
+    margin-bottom: 20px;
+}
+
+#addNewPromptBtn {
+    background: #007aff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 1em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+#addNewPromptBtn:hover {
+    background: #0062cc;
+}
+
+/* 空状态提示 */
+.empty-state {
+    text-align: center;
+    color: #86868b;
+    padding: 40px 20px;
+    font-size: 0.95em;
+}
+
+/* .prompt-item 已在上面定义 */
 
 .prompt-item .prompt-title {
     font-weight: 600;
@@ -222,6 +453,24 @@ input[type="checkbox"]:checked::before {
 }
 
 .prompt-actions button {
+  background: #1677ff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 12px;
+  margin-left: 6px;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.prompt-actions button:hover {
+  background: #0056b3;
+  color: #fff;
+}
+
     margin-right: 10px;
     padding: 6px 12px; /* 列表内按钮小一点 */
     font-size: 0.9em;

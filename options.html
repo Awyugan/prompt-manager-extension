@@ -11,61 +11,59 @@
 
     <div class="tabs-navigation">
       <button class="tab-link active" data-tab="tab-my-prompts" data-i18n-key="tabMyPrompts">My Prompts</button>
-      <button class="tab-link" data-tab="tab-recycle-bin" data-i18n-key="tabRecycleBin">Recycle Bin</button>
       <button class="tab-link" data-tab="tab-settings" data-i18n-key="tabSettings">Settings</button>
     </div>
 
     <div id="tab-my-prompts" class="tab-content active">
-      <section id="prompt-form-section" class="card prompt-form-card">
-        <h2 id="addNewPromptHeadingText"></h2>
-        <form id="addPromptForm">
-            <input type="hidden" id="promptId" name="promptId">
-            
-            <div class="form-group">
-                <label for="promptTitle" id="promptTitleLabelText"></label>
-                <input type="text" id="promptTitle" name="title">
-            </div>
-            
-            <div class="form-group">
-                <label for="promptContent" id="promptContentLabelText"></label>
-                <textarea id="promptContent" name="promptContent" rows="4" required></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="promptTags" id="promptTagsLabelText"></label>
-                <input type="text" id="promptTags" name="promptTags">
-            </div>
-            
-            <div class="form-group">
-                <label for="promptEffectUrl" id="promptEffectUrlLabelText"></label>
-                <input type="url" id="promptEffectUrl" name="promptEffectUrl" data-i18n-placeholder-key="promptEffectUrlPlaceholder">
-            </div>
-
-            <div class="form-group">
-                <label for="promptNotes" id="promptNotesLabelText"></label>
-                <textarea id="promptNotes" name="promptNotes" rows="3" data-i18n-placeholder-key="promptNotesPlaceholder"></textarea>
-            </div>
-
-            <div class="form-group">
-                <button type="submit" id="saveBtn"></button>
-            </div>
+      <!-- 新增提示词按钮 -->
+      
+      <!-- 编辑表单模板（默认隐藏） -->
+      <div id="editFormTemplate" class="edit-form-container" style="display: none;">
+        <form class="edit-prompt-form">
+          <input type="hidden" id="promptId" name="promptId">
+          <div class="form-group">
+            <label id="promptTitleLabelText" for="promptTitleInput" data-i18n-key="promptTitleLabel">Title</label>
+            <input type="text" id="promptTitleInput" class="prompt-title" required>
+          </div>
+          <div class="form-group">
+            <label id="promptContentLabelText" for="promptContentInput" data-i18n-key="promptContentLabel">Content</label>
+            <textarea id="promptContentInput" class="prompt-content" rows="4" required></textarea>
+          </div>
+          <div class="form-group">
+            <label id="promptTagsLabelText" for="promptTagsInput" data-i18n-key="promptTagsLabel">Tags</label>
+            <input type="text" id="promptTagsInput" class="prompt-tags">
+          </div>
+          <div class="form-group">
+            <label id="promptEffectUrlLabelText" for="promptEffectUrlInput" data-i18n-key="promptEffectUrlLabel">来源</label>
+            <input type="text" id="promptEffectUrlInput" name="promptEffectUrl" maxlength="300" placeholder="https://example.com" data-i18n-placeholder-key="promptEffectUrlPlaceholder">
+          </div>
+          <div class="form-group">
+            <label id="promptNotesLabelText" for="promptNotesInput" data-i18n-key="promptNotesLabel">Notes</label>
+            <textarea id="promptNotesInput" class="prompt-notes" rows="3" data-i18n-placeholder-key="promptNotesPlaceholder"></textarea>
+          </div>
+          <div class="form-actions">
+            <button id="saveBtn" type="submit" data-i18n-key="saveButton">Save</button>
+            <button id="cancelBtn" type="button" data-i18n-key="cancelButton">Cancel</button>
+          </div>
         </form>
-    </section>
+      </div>
 
       <section class="settings-section card" id="promptListSection">
         <h2 id="existingPromptsHeadingText"></h2>
-        <div id="existingPromptsContainer">
-          <!-- Prompts will be listed here -->
+        <div id="existingPromptsContainer" class="prompts-list">
+          <!-- 提示词列表将在这里动态生成 -->
+        </div>
+      </section>
+      <section class="settings-section card" id="recycleBinSection">
+        <h2 id="addNewPromptHeadingText" data-i18n-key="addNewPromptHeading">Add New Prompt</h2>
+        <button type="button" id="clearRecycleBinButton" data-i18n-key="clearRecycleBinButtonLabel" style="margin-bottom:16px;"></button>
+        <div id="deletedPromptsContainer">
+          <!-- Deleted prompts will be rendered here -->
         </div>
       </section>
     </div>
 
-    <div id="tab-recycle-bin" class="tab-content">
-      <h2 data-i18n-key="recycleBinTitle">Recycle Bin</h2>
-      <div id="deletedPromptsContainer">
-        <!-- Deleted prompts will be rendered here -->
-      </div>
-    </div>
+
 
     <div id="tab-settings" class="tab-content">
       <section class="settings-section card" id="generalSettingsSection">
