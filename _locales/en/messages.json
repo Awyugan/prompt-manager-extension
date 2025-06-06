@@ -37,6 +37,7 @@
   "aiTaggingSettingError": { "message": "Failed to save AI tagging setting:" },
   "aiTaggingEnabled": { "message": "Automatic AI tagging enabled." },
   "aiTaggingDisabled": { "message": "Automatic AI tagging disabled." },
+  "generatingAIText": { "message": "Generating AI suggestions..." },
   "languageSettingLabel": { "message": "Interface Language:" },
   "langEnglish": { "message": "English" },
   "langChinese": { "message": "中文 (Chinese)" },
@@ -47,5 +48,77 @@
   "effect": { "message": "Effect" },
   "untitled": { "message": "Untitled" },
   "tags": { "message": "Tags" },
-  "notificationMessage": { "message": "Prompt \"{title}\" has been saved successfully!", "placeholders": { "title": { "content": "$1", "example": "Sample Prompt" } } }
+  "notificationMessage": { "message": "Prompt \"{title}\" has been saved successfully!", "placeholders": { "title": { "content": "$1", "example": "Sample Prompt" } } },
+  "customSystemPromptLabelText": {
+    "message": "Custom AI System Prompt (supports ${langName} placeholder):",
+    "description": "Label for the custom AI system prompt textarea."
+  },
+    "promptNotesLabel": {
+      "message": "Notes:",
+      "description": "Label for the prompt notes input field."
+    },
+    "promptNotesPlaceholder": {
+      "message": "Enter your personal notes for this prompt here...",
+      "description": "Placeholder text for the prompt notes input field."
+    },
+  "tabMyPrompts": { "message": "My Prompts", "description": "Tab label for My Prompts section" },
+  "tabRecycleBin": { "message": "Recycle Bin", "description": "Tab label for Recycle Bin section" },
+  "tabSettings": { "message": "Settings", "description": "Tab label for Settings section" },
+  "recycleBinTitle": { "message": "Recycle Bin", "description": "Title for the Recycle Bin page/tab" },
+  "recycleBinEmpty": { "message": "Recycle bin is empty.", "description": "Message shown when recycle bin has no items" },
+  "sourceUrlLabel": { "message": "Source", "description": "Label for the source URL of a prompt" },
+  "customSystemPromptDescriptionText": {
+    "message": "If empty, a default prompt will be used. The ${langName} placeholder will be replaced with the current interface language (e.g., English or Chinese).",
+    "description": "Description for the custom AI system prompt textarea."
+  },
+  "promptEffectUrlPlaceholder": {
+    "message": "e.g., https://example.com/optional-effect-url",
+    "description": "Placeholder text for the prompt effect URL input field."
+  },
+  "deepseekApiKeyInputPlaceholder": {
+    "message": "Enter your DeepSeek API Key (e.g., sk-...)",
+    "description": "Placeholder text for the DeepSeek API Key input field."
+  },
+  "moveToRecycleBinConfirmation": {
+    "message": "Are you sure you want to move the prompt \"{title}\" to the Recycle Bin?",
+    "description": "Confirmation message when a user tries to delete a prompt, which now moves it to the recycle bin.",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "My Awesome Prompt"
+      }
+    }
+  },
+  "recycleBinRetentionLabel": {
+    "message": "Recycle Bin Retention (days):",
+    "description": "Label for the recycle bin retention period setting."
+  },
+  "recycleBinRetentionPlaceholder": {
+    "message": "e.g., 7",
+    "description": "Placeholder for the recycle bin retention period input field."
+  },
+  "recycleBinRetentionDescription": {
+    "message": "Prompts older than this will be automatically deleted from the recycle bin. Set to 0 for indefinite retention.",
+    "description": "Description for the recycle bin retention period setting."
+  },
+  "createdOnLabel": {
+    "message": "Created on:",
+    "description": "Label for the creation date of a prompt."
+  },
+  "duplicateButtonLabel": {
+    "message": "Duplicate",
+    "description": "Label for the duplicate prompt button."
+  },
+  "duplicateSuffix": {
+    "message": " (Copy)",
+    "description": "Suffix added to the title of a duplicated prompt."
+  },
+  "restoreButtonLabel": {
+    "message": "Restore",
+    "description": "Label for the restore button in the recycle bin."
+  },
+  "permanentlyDeleteButtonLabel": {
+    "message": "Delete Permanently",
+    "description": "Label for the permanently delete button in the recycle bin."
+  }
 }

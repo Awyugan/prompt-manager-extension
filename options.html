@@ -1,65 +1,118 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title></title>
+  <title id="optionsPageTitle"></title>
   <meta charset="UTF-8">
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-    }
-    /* Add more styles for your options page here */
-  </style>
+  <link rel="stylesheet" href="options.css">
 </head>
 <body>
   <div class="container">
     <h1 id="pageTitle"></h1>
-    <p style="margin-bottom: 5px;"><a href="settings.html" id="configureApiKeyLink"></a></p>
-    <p id="managePromptsDescriptionText"></p>
 
-    <h2 id="generalSettingsHeadingText"></h2> <!-- Assuming a general settings heading -->
-    <div class="form-group">
-        <label for="languageSelect" id="languageSettingLabelText"></label>
-        <select id="languageSelect" name="languageSelect">
+    <div class="tabs-navigation">
+      <button class="tab-link active" data-tab="tab-my-prompts" data-i18n-key="tabMyPrompts">My Prompts</button>
+      <button class="tab-link" data-tab="tab-recycle-bin" data-i18n-key="tabRecycleBin">Recycle Bin</button>
+      <button class="tab-link" data-tab="tab-settings" data-i18n-key="tabSettings">Settings</button>
+    </div>
+
+    <div id="tab-my-prompts" class="tab-content active">
+      <section id="prompt-form-section" class="card prompt-form-card">
+        <h2 id="addNewPromptHeadingText"></h2>
+        <form id="addPromptForm">
+            <input type="hidden" id="promptId" name="promptId">
+            
+            <div class="form-group">
+                <label for="promptTitle" id="promptTitleLabelText"></label>
+                <input type="text" id="promptTitle" name="title">
+            </div>
+            
+            <div class="form-group">
+                <label for="promptContent" id="promptContentLabelText"></label>
+                <textarea id="promptContent" name="promptContent" rows="4" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="promptTags" id="promptTagsLabelText"></label>
+                <input type="text" id="promptTags" name="promptTags">
+            </div>
+            
+            <div class="form-group">
+                <label for="promptEffectUrl" id="promptEffectUrlLabelText"></label>
+                <input type="url" id="promptEffectUrl" name="promptEffectUrl" data-i18n-placeholder-key="promptEffectUrlPlaceholder">
+            </div>
+
+            <div class="form-group">
+                <label for="promptNotes" id="promptNotesLabelText"></label>
+                <textarea id="promptNotes" name="promptNotes" rows="3" data-i18n-placeholder-key="promptNotesPlaceholder"></textarea>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" id="saveBtn"></button>
+            </div>
+        </form>
+    </section>
+
+      <section class="settings-section card" id="promptListSection">
+        <h2 id="existingPromptsHeadingText"></h2>
+        <div id="existingPromptsContainer">
+          <!-- Prompts will be listed here -->
+        </div>
+      </section>
+    </div>
+
+    <div id="tab-recycle-bin" class="tab-content">
+      <h2 data-i18n-key="recycleBinTitle">Recycle Bin</h2>
+      <div id="deletedPromptsContainer">
+        <!-- Deleted prompts will be rendered here -->
+      </div>
+    </div>
+
+    <div id="tab-settings" class="tab-content">
+      <section class="settings-section card" id="generalSettingsSection">
+        <h2 id="generalSettingsHeadingText"></h2>
+        
+        <div class="form-group">
+          <label for="languageSelect" id="languageSettingLabelText"></label>
+          <select id="languageSelect" name="languageSelect">
             <option value="en" id="langEnglishOption"></option>
             <option value="zh" id="langChineseOption"></option>
-        </select>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="autoTagging" id="autoTaggingLabelText"></label>
+          <input type="checkbox" id="autoTagging" name="autoTagging">
+        </div>
+        
+        <div class="form-group">
+          <label for="customSystemPromptTextarea" id="customSystemPromptLabelText"></label>
+          <textarea id="customSystemPromptTextarea" name="customSystemPromptTextarea" rows="5"></textarea>
+          <p class="description-text" id="customSystemPromptDescriptionText"></p>
+        </div>
+
+        <div class="form-group">
+          <label for="recycleBinRetention" id="recycleBinRetentionLabel" data-i18n-key="recycleBinRetentionLabel">Recycle Bin Retention (days):</label>
+          <input type="number" id="recycleBinRetention" name="recycleBinRetention" min="0" style="width: 80px;" data-i18n-placeholder-key="recycleBinRetentionPlaceholder">
+          <p class="description-text" id="recycleBinRetentionDescription" data-i18n-key="recycleBinRetentionDescription">Prompts older than this will be automatically deleted from the recycle bin.</p>
+        </div>
+
+        <div class="form-group">
+          <label for="deepseekApiKeyInput" id="deepseekApiKeyLabelText"></label>
+          <div class="api-key-input-container">
+            <input type="password" id="deepseekApiKeyInput" name="deepseekApiKeyInput" data-i18n-placeholder-key="deepseekApiKeyInputPlaceholder">
+            <button type="button" id="toggleApiKeyVisibilityButton" title="Toggle API Key Visibility">👁️</button>
+          </div>
+          <p class="description-text" id="apiKeyNoteText"></p>
+        </div>
+        <div class="form-group">
+          <button type="button" id="saveApiKeyButton"></button>
+          <p class="status-message" id="apiKeyStatusMessage" style="margin-top: 10px; height: 1em;"></p>
+        </div>
+      </section>
     </div>
-    <div class="form-group">
-        <label for="autoTagging" id="autoTaggingLabelText"></label>
-        <input type="checkbox" id="autoTagging" name="autoTagging">
-    </div>
-
-    <!-- CRUD operations for prompts will be implemented here -->
-    <h2 id="addNewPromptHeadingText"></h2>
-    <form id="addPromptForm">
-      <div>
-        <label for="promptTitle" id="promptTitleLabelText"></label><br>
-        <input type="text" id="promptTitle" name="title" style="width: 90%;"><br><br>
-      </div>
-      <div>
-        <label for="promptContent" id="promptContentLabelText"></label><br>
-        <textarea id="promptContent" name="promptContent" rows="4" required></textarea><br>
-
-        <label for="promptTags" id="promptTagsLabelText"></label><br>
-        <input type="text" id="promptTags" name="promptTags"><br>
-
-        <label for="promptEffectUrl" id="promptEffectUrlLabelText"></label><br>
-        <input type="text" id="promptEffectUrl" name="promptEffectUrl"><br><br>
-
-        <button type="submit" id="saveBtn"></button>
-      </div>
-    </form>
-
-    <h2 id="existingPromptsHeadingText"></h2>
-    <div id="existingPromptsContainer">
-      <!-- Prompts will be listed here -->
     </div>
   </div>
+
   <script src="options.js"></script>
 </body>
 </html>

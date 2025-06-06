@@ -1,0 +1,296 @@
+/* Tabs Navigation */
+.tabs-navigation {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.tab-link {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    font-size: 1em;
+    color: #555;
+    border-bottom: 3px solid transparent; /* For active indicator */
+    margin-right: 5px; /* Spacing between tabs */
+    transition: color 0.3s ease, border-bottom-color 0.3s ease;
+}
+
+.tab-link:hover {
+    color: #007aff;
+}
+
+.tab-link.active {
+    color: #007aff;
+    border-bottom-color: #007aff;
+    font-weight: bold;
+}
+
+/* Tab Content Panes */
+.tab-content {
+    display: none; /* Hidden by default */
+}
+
+.tab-content.active {
+    display: block; /* Shown when active */
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    line-height: 1.6;
+    background-color: #f0f2f5; /* 类似 macOS 设置的浅灰色背景 */
+    color: #1d1d1f; /* 苹果风格的深灰色文字 (接近纯黑) */
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 760px; /* 稍微调整宽度 */
+    /* padding: 20px; container 内不再需要 padding，由 section 提供 */
+}
+
+h1 {
+    font-size: 1.8em;
+    color: #1d1d1f;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+h2 {
+    font-size: 1.3em;
+    color: #1d1d1f;
+    margin-top: 30px; /* Section 间的上边距 */
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e5e5e5; /* 标题下的分隔线 */
+}
+
+.settings-section {
+    background-color: #ffffff; /* 卡片背景 */
+    border-radius: 12px; /* 更圆的角 */
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* 更柔和的阴影 */
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500; /* 中等粗细 */
+    color: #333;
+    margin-bottom: 8px;
+}
+
+input[type="text"],
+input[type="url"],
+textarea,
+select {
+    width: 100%; /* 默认宽度占满 */
+    padding: 10px 12px;
+    border: 1px solid #d2d2d7; /* 苹果风格的边框颜色 */
+    border-radius: 8px; /* 圆角 */
+    box-sizing: border-box; /* 防止 padding 撑大元素 */
+    font-size: 0.95em;
+    background-color: #fdfdfd;
+}
+
+input[type="text"]:focus,
+input[type="url"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #007aff; /* 苹果蓝 */
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+textarea {
+    min-height: 80px;
+    resize: vertical; /* 允许垂直调整大小 */
+}
+
+button[type="submit"],
+.prompt-actions button {
+    background-color: #007aff; /* 苹果蓝 */
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+button[type="submit"]:hover,
+.prompt-actions button:hover {
+    background-color: #005bb5; /* 深一点的蓝色 */
+}
+
+.prompt-actions button.delete-prompt {
+    background-color: #ff3b30; /* 苹果红 */
+}
+
+.prompt-actions button.delete-prompt:hover {
+    background-color: #c00;
+}
+
+/* 针对 checkbox 的美化，尝试模拟 toggle switch */
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 40px;
+    height: 22px;
+    background-color: #e0e0e0;
+    border-radius: 11px;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.3s;
+    vertical-align: middle; /* 与标签文字对齐 */
+}
+
+input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: white;
+    top: 2px;
+    left: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform 0.3s;
+}
+
+input[type="checkbox"]:checked {
+    background-color: #34c759; /* 苹果绿 */
+}
+
+input[type="checkbox"]:checked::before {
+    transform: translateX(18px);
+}
+
+.description-text {
+    font-size: 0.85em;
+    color: #6c6c70; /* 辅助性文本颜色 */
+    margin-top: 5px;
+}
+
+/* 提示列表样式 */
+.prompt-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.prompt-item {
+    padding: 15px;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    background-color: #f9f9f9; /* 列表项背景 */
+}
+
+.prompt-item .prompt-title {
+    font-weight: 600;
+    font-size: 1.1em;
+    color: #1d1d1f;
+    margin-bottom: 5px;
+}
+
+.prompt-item .prompt-content-preview {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 8px;
+    word-break: break-word;
+}
+
+.prompt-item .prompt-tags {
+    font-size: 0.85em;
+    color: #007aff; /* 标签用蓝色 */
+    margin-bottom: 10px;
+}
+
+.prompt-actions {
+    margin-top: 10px;
+}
+
+.prompt-actions button {
+    margin-right: 10px;
+    padding: 6px 12px; /* 列表内按钮小一点 */
+    font-size: 0.9em;
+}
+
+.prompt-actions button:last-child {
+    margin-right: 0;
+}
+
+.prompt-notes-preview {
+    font-size: 0.85em;
+    color: #555;
+    margin-top: 6px;
+    padding-left: 10px; /* Align with title/content if they have padding */
+    white-space: pre-wrap; /* Preserve line breaks in notes if any */
+    word-break: break-word;
+}
+
+.prompt-source-url {
+    font-size: 0.8em;
+    color: #777;
+    margin-top: 5px;
+    padding-left: 10px;
+    word-break: break-all; /* Break long URLs nicely */
+}
+
+.prompt-source-url a {
+    color: #007aff;
+    text-decoration: none;
+}
+
+.prompt-source-url a:hover {
+    text-decoration: underline;
+}
+
+#configureApiKeyLink {
+    color: #007aff;
+    text-decoration: none;
+}
+#configureApiKeyLink:hover {
+    text-decoration: underline;
+}
+
+/* API Key Visibility Toggle */
+.api-key-input-container {
+    display: flex;
+    align-items: center;
+    width: 100%; /* Ensure it takes full width of form-group */
+}
+
+.api-key-input-container input[type="password"],
+.api-key-input-container input[type="text"] {
+    flex-grow: 1; /* Input takes available space */
+    /* width: auto; Remove fixed width if any, rely on flex-grow */
+}
+
+#toggleApiKeyVisibilityButton {
+    margin-left: 8px;
+    padding: 8px 10px; /* Adjusted padding to better fit typical button heights */
+    font-size: 1em; /* Make icon slightly larger if it's text-based */
+    line-height: 1; /* Ensure text/icon is centered vertically */
+    background-color: #f0f0f0; /* Lighter background for a secondary button */
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+#toggleApiKeyVisibilityButton:hover {
+    background-color: #e0e0e0;
+}

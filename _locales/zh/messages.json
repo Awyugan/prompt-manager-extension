@@ -12,6 +12,7 @@
   "aiTaggingSettingError": { "message": "保存 AI 标记设置失败：" },
   "aiTaggingEnabled": { "message": "自动 AI 标记已启用。" },
   "aiTaggingDisabled": { "message": "自动 AI 标记已关闭." },
+  "generatingAIText": { "message": "正在生成 AI 建议..." },
   "extName": { "message": "提示词管家" },
   "extDescription": { "message": "一个高效管理和使用提示词的 Chrome 扩展程序。" },
   "searchPromptsTitle": { "message": "搜索提示词" },
@@ -47,5 +48,77 @@
   "effect": { "message": "效果" },
   "untitled": { "message": "无标题" },
   "tags": { "message": "标签" },
-  "notificationMessage": { "message": "提示“{title}”已成功保存！", "placeholders": { "title": { "content": "$1", "example": "示例提示" } } }
+  "notificationMessage": { "message": "提示“{title}”已成功保存！", "placeholders": { "title": { "content": "$1", "example": "示例提示" } } },
+  "customSystemPromptLabelText": {
+    "message": "自定义 AI 系统提示词 (支持 ${langName} 占位符):",
+    "description": "自定义 AI 系统提示词文本区域的标签。"
+  },
+    "promptNotesLabel": {
+      "message": "备注：",
+      "description": "Label for the prompt notes input field."
+    },
+    "promptNotesPlaceholder": {
+      "message": "在此输入您对此提示的个人备注...",
+      "description": "Placeholder text for the prompt notes input field."
+    },
+  "tabMyPrompts": { "message": "我的提示词", "description": "Tab label for My Prompts section" },
+  "tabRecycleBin": { "message": "回收站", "description": "Tab label for Recycle Bin section" },
+  "tabSettings": { "message": "设置", "description": "设置标签页的标签" },
+  "recycleBinTitle": { "message": "回收站", "description": "Title for the Recycle Bin page/tab" },
+  "recycleBinEmpty": { "message": "回收站为空。", "description": "回收站为空时显示的消息" },
+  "sourceUrlLabel": { "message": "来源", "description": "提示词来源链接的标签" },
+  "customSystemPromptDescriptionText": {
+    "message": "如果为空，将使用默认提示词。${langName} 占位符将被替换为当前界面语言（例如 English 或 Chinese）。",
+    "description": "自定义 AI 系统提示词文本区域的描述。"
+  },
+  "promptEffectUrlPlaceholder": {
+    "message": "例如：https://example.com/optional-effect-url",
+    "description": "提示词效果链接输入框的占位符文本。"
+  },
+  "deepseekApiKeyInputPlaceholder": {
+    "message": "请输入您的 DeepSeek API 密钥 (例如：sk-...)",
+    "description": "DeepSeek API 密钥输入框的占位符文本。"
+  },
+  "moveToRecycleBinConfirmation": {
+    "message": "您确定要将提示 “{title}” 移动到回收站吗？",
+    "description": "用户尝试删除提示（实际是移至回收站）时的确认信息。",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "我的超棒提示"
+      }
+    }
+  },
+  "recycleBinRetentionLabel": {
+    "message": "回收站保留天数：",
+    "description": "回收站保留期限设置的标签。"
+  },
+  "recycleBinRetentionPlaceholder": {
+    "message": "例如：7",
+    "description": "回收站保留天数输入框的占位符。"
+  },
+  "recycleBinRetentionDescription": {
+    "message": "早于此天数的提示将自动从回收站删除。设为0则无限期保留。",
+    "description": "回收站保留期限设置的描述。"
+  },
+  "createdOnLabel": {
+    "message": "创建于：",
+    "description": "提示的创建日期标签。"
+  },
+  "duplicateButtonLabel": {
+    "message": "创建副本",
+    "description": "创建副本按钮的标签。"
+  },
+  "duplicateSuffix": {
+    "message": " (副本)",
+    "description": "添加到重复提示标题的后缀。"
+  },
+  "restoreButtonLabel": {
+    "message": "恢复",
+    "description": "回收站中恢复按钮的标签。"
+  },
+  "permanentlyDeleteButtonLabel": {
+    "message": "永久删除",
+    "description": "回收站中永久删除按钮的标签。"
+  }
 }
