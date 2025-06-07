@@ -15,9 +15,20 @@ Prompt Manager 是一款功能强大的 Chrome 浏览器扩展，专为 AI 提�
 
 ### 从 Chrome 网上应用店安装
 
-1. 访问 [Chrome 网上应用店](https://chrome.google.com/webstore/)
-2. 搜索 "Prompt Manager"
-3. 点击"添加至 Chrome"
+Prompt Manager 插件即将上架 Chrome 网上应用店。届时，您可以通过以下步骤安装：
+
+1.  访问 [Chrome 网上应用店](https://chrome.google.com/webstore/)
+2.  搜索 "Prompt Manager"
+3.  点击 "添加至 Chrome"
+
+### 通过 CRX 文件安装
+
+如果您希望通过 CRX 文件安装，可以从 [GitHub Releases 页面](https://github.com/awyugan/prompt-manager-extension/releases) 下载最新版本的 `.crx` 文件，然后按照以下步骤操作：
+
+1.  打开 Chrome 浏览器，访问 `chrome://extensions/`
+2.  开启右上角的 "开发者模式"
+3.  将下载的 `.crx` 文件拖拽到 `chrome://extensions/` 页面
+4.  在弹出的确认框中点击 "添加扩展程序"
 
 ### 开发者模式安装
 

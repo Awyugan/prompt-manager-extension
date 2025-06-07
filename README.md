@@ -38,9 +38,22 @@ The Prompt Manager Extension is a powerful Chrome extension designed to streamli
     *   Alternatively, if you built the `.zip` file, click "Load zipped" or "Load unpacked" and drag the `.zip` file (or the unzipped `dist` folder) into the extensions page.
 6.  **Enjoy:** The Prompt Manager Extension icon should now appear in your browser toolbar.
 
-### From Chrome Web Store (Coming Soon)
+### From Chrome Web Store
 
-_Once the extension is published on the Chrome Web Store, you will be able to install it directly from there._
+The Prompt Manager Extension will soon be available on the Chrome Web Store. Once published, you can install it directly from there by following these steps:
+
+1.  Visit the [Chrome Web Store](https://chrome.google.com/webstore/)
+2.  Search for "Prompt Manager"
+3.  Click "Add to Chrome"
+
+### Via CRX File
+
+To install via a CRX file, you can download the latest `.crx` file from the [GitHub Releases page](https://github.com/awyugan/prompt-manager-extension/releases), and then follow these steps:
+
+1.  Open your Chrome browser and navigate to `chrome://extensions/`
+2.  Enable "Developer mode" in the top right corner.
+3.  Drag and drop the downloaded `.crx` file onto the `chrome://extensions/` page.
+4.  Click "Add extension" in the confirmation dialog.
 
 ## Usage
 
