@@ -39,7 +39,7 @@
   "apiKeyMissingError": { "message": "未找到 DeepSeek API 密钥。AI 功能已禁用，请在设置中填写。" },
   "autoTaggingLabel": { "message": "启用右键保存时自动 AI 生成标题和标签" },
   "languageSettingLabel": { "message": "界面语言：" },
-  "langEnglish": { "message": "English (英文)" },
+  "langEnglish": { "message": "英文" },
   "langChinese": { "message": "中文" },
   "notificationTitle": { "message": "提示已保存" },
   "noPromptsSaved": { "message": "尚未保存任何提示。" },
@@ -48,7 +48,15 @@
   "effect": { "message": "效果" },
   "untitled": { "message": "无标题" },
   "tags": { "message": "标签" },
-  "notificationMessage": { "message": "提示“{title}”已成功保存！", "placeholders": { "title": { "content": "$1", "example": "示例提示" } } },
+  "notificationMessage": { 
+    "message": "提示\"$title$\"已成功保存！", 
+    "placeholders": { 
+      "title": { 
+        "content": "$1", 
+        "example": "示例提示" 
+      } 
+    } 
+  },
   "customSystemPromptLabelText": {
     "message": "自定义 AI 系统提示词 (支持 ${langName} 占位符):",
     "description": "自定义 AI 系统提示词文本区域的标签。"
@@ -80,7 +88,7 @@
     "description": "DeepSeek API 密钥输入框的占位符文本。"
   },
   "moveToRecycleBinConfirmation": {
-    "message": "您确定要将提示 “{title}” 移动到回收站吗？",
+    "message": "您确定要将提示 \"$title$\" 移动到回收站吗？",
     "description": "用户尝试删除提示（实际是移至回收站）时的确认信息。",
     "placeholders": {
       "title": {
@@ -145,6 +153,19 @@
     "message": "清空失败，请重试。",
     "description": "清空回收站失败时的错误提示。"
   },
+  "promptTitleLabelText": { "message": "标题：" },
+  "promptContentLabelText": { "message": "提示词：" },
+  "promptTagsLabelText": { "message": "标签 (逗号分隔)：" },
+  "promptEffectUrlLabelText": { "message": "效果链接 (可选)：" },
+  "promptNotesLabelText": { "message": "备注：" },
+  "addNewPromptHeadingText": {
+    "message": "添加/编辑提示",
+    "description": "添加/编辑提示表单的标题"
+  },
+  "existingPromptsHeadingText": {
+    "message": "现有提示词",
+    "description": "现有提示词部分的标题"
+  },
   "customSystemPromptLabel": {
     "message": "自定义系统提示",
     "description": "设置中自定义系统提示文本区域的标签。"
@@ -152,5 +173,97 @@
   "customSystemPromptDescription": {
     "message": "定义一个自定义的系统级提示，在与某些AI模型交互时，它将隐式地添加到您的实际提示之前。这可用于设置上下文、语气或向AI提供特定指令。",
     "description": "设置中自定义系统提示功能的描述。"
+  },
+  "exportPromptsBtn": {
+    "message": "导出提示词",
+    "description": "将提示词导出到文件"
+  },
+  "importPromptsBtn": {
+    "message": "导入提示词",
+    "description": "从文件导入提示词"
+  },
+  "permanentlyDeleteConfirmation": {
+    "message": "您确定要永久删除此提示吗？此操作无法撤销。",
+    "description": "用户尝试从回收站永久删除提示时的确认信息。"
+  },
+  "shortcutSettingsHeading": {
+    "message": "快捷键设置",
+    "description": "快捷键设置区域的标题。"
+  },
+  "siteSpecificActivationHeading": {
+    "message": "特定站点激活",
+    "description": "特定站点快捷键激活功能的标题。"
+  },
+  "siteSpecificActivationDescription": {
+    "message": "仅在这些网站上激活快捷键。每行输入一个 URL 模式（例如 https://*.example.com/* 或 www.google.com）。如果为空，快捷键将在所有站点激活。",
+    "description": "特定站点激活功能的描述。"
+  },
+  "allowedSitesLabel": {
+    "message": "允许的网站 (每行一个):",
+    "description": "用户输入允许网站的文本区域标签。"
+  },
+  "saveAllowedSitesButton": {
+    "message": "保存在特定站点启动",
+    "description": "保存允许站点列表的按钮文本。"
+  },
+  "allowedSitesStatusLoading": {
+    "message": "加载中...",
+    "description": "加载允许站点时的状态消息。"
+  },
+  "allowedSitesStatusSuccess": {
+    "message": "特定站点启动列表已成功保存。",
+    "description": "成功保存允许站点后的消息。"
+  },
+  "allowedSitesStatusError": {
+    "message": "保存特定站点启动列表失败，请检查控制台获取详情。",
+    "description": "保存允许站点失败时的错误消息。"
+  },
+  "customizeShortcutsHeading": {
+    "message": "自定义快捷键",
+    "description": "快捷键自定义区域的标题。"
+  },
+  "customizeShortcutsDescription": {
+    "message": "管理您的扩展程序快捷键，例如激活提示词列表或打开主面板。",
+    "description": "快捷键自定义区域的描述。"
+  },
+  "customizeShortcutsButton": {
+    "message": "打开快捷键设置",
+    "description": "打开 Chrome 扩展快捷键设置页面的按钮文本。"
+  },
+  "customPromptShortcutKeyHeading": {
+    "message": "自定义搜索快捷键",
+    "description": "自定义快捷键设置的标题"
+  },
+  "customPromptShortcutKeyLabel": {
+    "message": "触发键：",
+    "description": "自定义快捷键输入框的标签"
+  },
+  "customPromptShortcutKeyDescription": {
+    "message": "输入单个字符（例如 / 或 #）。在可编辑字段中按下此键将打开提示词搜索。默认为 '/'。更改将在重新加载页面后生效。",
+    "description": "自定义快捷键设置的描述。"
+  },
+  "customShortcutKeyDefaultNote": {
+    "message": "默认快捷键为 '/'.",
+    "description": "关于默认快捷键的说明"
+  },
+  "customPromptShortcutKeyPlaceholder": {
+    "message": "例如：/",
+    "description": "自定义快捷键输入框的占位符。"
+  },
+  "saveCustomShortcutKeyButton": {
+    "message": "保存快捷键",
+    "description": "保存自定义快捷键的按钮文本。"
+  },
+  "shortcutKeySavedSuccess": {
+    "message": "快捷键已成功保存！",
+    "description": "成功保存快捷键后的提示消息。"
+  },
+  "shortcutKeySaveError": {
+    "message": "保存快捷键失败，请重试。",
+    "description": "保存快捷键失败时的错误消息。"
+  },
+  "shortcutKeyInvalid": {
+    "message": "请输入有效的单个字符作为快捷键。",
+    "description": "输入无效快捷键时的错误消息。"
   }
 }

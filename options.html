@@ -34,7 +34,7 @@
             <input type="text" id="promptTagsInput" class="prompt-tags">
           </div>
           <div class="form-group">
-            <label id="promptEffectUrlLabelText" for="promptEffectUrlInput" data-i18n-key="promptEffectUrlLabel">来源</label>
+            <label id="promptEffectUrlLabelText" for="promptEffectUrlInput" data-i18n-key="promptEffectUrlLabel"></label>
             <input type="text" id="promptEffectUrlInput" name="promptEffectUrl" maxlength="300" placeholder="https://example.com" data-i18n-placeholder-key="promptEffectUrlPlaceholder">
           </div>
           <div class="form-group">
@@ -67,13 +67,20 @@
 
     <div id="tab-settings" class="tab-content">
       <section class="settings-section card" id="generalSettingsSection">
+        <!-- ===== Prompts 导入/导出功能 ===== -->
+        <div class="form-group" style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+          <button type="button" id="exportPromptsBtn" data-i18n-key="exportPromptsBtn">导出 Prompts</button>
+          <button type="button" id="importPromptsBtn" data-i18n-key="importPromptsBtn">导入 Prompts</button>
+          <input type="file" id="importPromptsInput" accept="application/json" style="display:none;">
+          <span id="backupStatus" style="margin-left:12px;font-size:0.95em;"></span>
+        </div>
         <h2 id="generalSettingsHeadingText"></h2>
         
         <div class="form-group">
           <label for="languageSelect" id="languageSettingLabelText"></label>
           <select id="languageSelect" name="languageSelect">
             <option value="en" id="langEnglishOption"></option>
-            <option value="zh" id="langChineseOption"></option>
+            <option value="zh_CN" id="langChineseOption"></option>
           </select>
         </div>
 
@@ -105,6 +112,37 @@
         <div class="form-group">
           <button type="button" id="saveApiKeyButton"></button>
           <p class="status-message" id="apiKeyStatusMessage" style="margin-top: 10px; height: 1em;"></p>
+        </div>
+
+        <!-- Shortcut Settings Section -->
+        <h2 id="shortcutSettingsHeadingText" data-i18n-key="shortcutSettingsHeading" style="margin-top: 30px;">Shortcut Settings</h2>
+        
+        <!-- Site-Specific Activation -->
+        <div class="form-group">
+          <h3 id="siteSpecificActivationHeadingText" data-i18n-key="siteSpecificActivationHeading"></h3>
+          <p class="description-text" id="siteSpecificActivationDescriptionText" data-i18n-key="siteSpecificActivationDescription"></p>
+          <label for="allowedSitesTextarea" id="allowedSitesLabelText" data-i18n-key="allowedSitesLabel"></label>
+          <textarea id="allowedSitesTextarea" name="allowedSitesTextarea" rows="5" style="width: 100%; margin-top: 5px;"></textarea>
+          <button type="button" id="saveAllowedSitesButton" data-i18n-key="saveAllowedSitesButton" style="margin-top: 10px;"></button>
+          <p class="status-message" id="allowedSitesStatusMessage" style="margin-top: 10px; height: 1em;"></p>
+        </div>
+
+        <!-- Customize Shortcuts -->
+        <div class="form-group" style="margin-top: 20px;">
+          <h3 id="customizeShortcutsHeadingText" data-i18n-key="customizeShortcutsHeading"></h3>
+          <p class="description-text" id="customizeShortcutsDescriptionText" data-i18n-key="customizeShortcutsDescription"></p>
+          <!-- Custom Prompt Search Shortcut Key Setting -->
+          <h3 id="customPromptShortcutKeyHeadingText" data-i18n-key="customPromptShortcutKeyHeading" style="margin-top: 20px;"></h3>
+          <div class="form-group">
+            <label for="customShortcutKeyInput" id="customPromptShortcutKeyLabelText" data-i18n-key="customPromptShortcutKeyLabel"></label>
+            <input type="text" id="customShortcutKeyInput" class="form-control" maxlength="1" style="width: 50px; display: inline-block; margin-left: 10px;" data-i18n-placeholder-key="customPromptShortcutKeyPlaceholder">
+            <button type="button" id="saveCustomShortcutKeyButton" class="btn btn-primary" style="margin-left: 10px;" data-i18n-key="saveCustomShortcutKeyButton"></button>
+            <span id="customShortcutKeyStatusMessage" class="status-message" style="margin-left: 10px;"></span>
+          </div>
+          <p class="description-text" id="customPromptShortcutKeyDescriptionText" data-i18n-key="customPromptShortcutKeyDescription"></p>
+          <p class="description-text" id="customShortcutKeyDefaultNoteText" data-i18n-key="customShortcutKeyDefaultNote"></p>
+
+          <button type="button" id="customizeShortcutsButton" data-i18n-key="customizeShortcutsButton" style="margin-top: 10px;"></button>
         </div>
       </section>
     </div>

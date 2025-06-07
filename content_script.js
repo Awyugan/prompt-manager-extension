@@ -7,6 +7,42 @@ let promptsListUl = null;
 let activeInputElement = null;
 let allPrompts = []; // To store all prompts fetched from background
 
+let PROMPT_SEARCH_SHORTCUT_KEY = '/'; // Default value
+
+function loadPromptSearchShortcutKey() {
+    chrome.storage.sync.get(['customPromptShortcutKey'], function(result) {
+        if (chrome.runtime.lastError) {
+            console.error('Error loading customPromptShortcutKey:', chrome.runtime.lastError);
+            // Keep default value
+            return;
+        }
+        if (result.customPromptShortcutKey && typeof result.customPromptShortcutKey === 'string' && result.customPromptShortcutKey.length === 1) {
+            PROMPT_SEARCH_SHORTCUT_KEY = result.customPromptShortcutKey;
+            console.log('Custom prompt search shortcut key loaded:', PROMPT_SEARCH_SHORTCUT_KEY);
+        } else {
+            // If stored value is invalid, use default.
+            console.log('No valid custom prompt search shortcut key found, using default:', PROMPT_SEARCH_SHORTCUT_KEY);
+        }
+    });
+}
+
+// Call this function when the content script loads
+loadPromptSearchShortcutKey();
+
+// Listen for changes in storage, so if the user changes it in options, it updates here too without needing a page reload.
+chrome.storage.onChanged.addListener(function(changes, namespace) {
+    if (namespace === 'sync' && changes.customPromptShortcutKey) {
+        if (changes.customPromptShortcutKey.newValue && typeof changes.customPromptShortcutKey.newValue === 'string' && changes.customPromptShortcutKey.newValue.length === 1) {
+            PROMPT_SEARCH_SHORTCUT_KEY = changes.customPromptShortcutKey.newValue;
+            console.log('Prompt search shortcut key updated to:', PROMPT_SEARCH_SHORTCUT_KEY);
+        } else {
+            // Revert to default if new value is invalid
+            PROMPT_SEARCH_SHORTCUT_KEY = '/'; 
+            console.warn('Invalid new shortcut key received from storage, reverting to default.');
+        }
+    }
+});
+
 function createSearchUI() {
   if (searchUiContainer) return; // Already created
 
@@ -142,7 +178,7 @@ document.addEventListener('keydown', function(event) {
   
   const isProbablyEmailOrPassword = targetElement.matches('input[type="email"], input[type="password"]');
 
-  if (isEditable && !isProbablyEmailOrPassword && event.key === '/') {
+  if (isEditable && !isProbablyEmailOrPassword && event.key === PROMPT_SEARCH_SHORTCUT_KEY) {
     event.preventDefault(); // Prevent default slash insertion
     activeInputElement = targetElement; // Store the active input
     console.log("Slash key pressed in an editable field:", activeInputElement);

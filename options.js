@@ -46,6 +46,15 @@ function applyOptionsPageLocalizations() {
         'promptEffectUrlLabelText': 'promptEffectUrlLabel',
         'promptNotesLabelText': 'promptNotesLabel',
         'existingPromptsHeadingText': 'existingPromptsHeading',
+        // Shortcut Settings
+        'shortcutSettingsHeadingText': 'shortcutSettingsHeading',
+        'siteSpecificActivationHeadingText': 'siteSpecificActivationHeading',
+        'siteSpecificActivationDescriptionText': 'siteSpecificActivationDescription',
+        'allowedSitesLabelText': 'allowedSitesLabel',
+        'customizeShortcutsHeadingText': 'customizeShortcutsHeading',
+        'customizeShortcutsDescriptionText': 'customizeShortcutsDescription',
+        'saveAllowedSitesButton': 'saveAllowedSitesButton',
+        'customizeShortcutsButton': 'customizeShortcutsButton',
     };
 
     for (const id in elementsToLocalizeById) {
@@ -90,6 +99,63 @@ function applyOptionsPageLocalizations() {
     // Example: promptNotesTextarea was handled specifically, this can be removed if data-i18n-placeholder-key is used consistently
     // const promptNotesTextarea = document.getElementById('promptNotes');
 }
+
+// --- Shortcut Settings ---
+function initializeShortcutSettings() {
+    const allowedSitesTextarea = document.getElementById('allowedSitesTextarea');
+    const saveAllowedSitesButton = document.getElementById('saveAllowedSitesButton');
+    const allowedSitesStatusMessage = document.getElementById('allowedSitesStatusMessage');
+    const customizeShortcutsButton = document.getElementById('customizeShortcutsButton');
+
+    // Load allowed sites
+    if (allowedSitesTextarea && saveAllowedSitesButton && allowedSitesStatusMessage) {
+        allowedSitesStatusMessage.textContent = chrome.i18n.getMessage('allowedSitesStatusLoading') || 'Loading...';
+        chrome.storage.sync.get(['allowedSites'], function(result) {
+            if (chrome.runtime.lastError) {
+                console.error('Error loading allowed sites:', chrome.runtime.lastError);
+                allowedSitesStatusMessage.textContent = chrome.i18n.getMessage('allowedSitesStatusError') || 'Error loading.';
+                allowedSitesStatusMessage.style.color = 'red';
+                return;
+            }
+            if (result.allowedSites && Array.isArray(result.allowedSites)) {
+                allowedSitesTextarea.value = result.allowedSites.join('\n');
+            }
+            allowedSitesStatusMessage.textContent = ''; // Clear loading message
+        });
+
+        saveAllowedSitesButton.addEventListener('click', function() {
+            const urls = allowedSitesTextarea.value.split('\n').map(url => url.trim()).filter(url => url);
+            chrome.storage.sync.set({ allowedSites: urls }, function() {
+                if (chrome.runtime.lastError) {
+                    console.error('Error saving allowed sites:', chrome.runtime.lastError);
+                    allowedSitesStatusMessage.textContent = chrome.i18n.getMessage('allowedSitesStatusError') || 'Error saving.';
+                    allowedSitesStatusMessage.style.color = 'red';
+                } else {
+                    allowedSitesStatusMessage.textContent = chrome.i18n.getMessage('allowedSitesStatusSuccess') || 'Saved successfully.';
+                    allowedSitesStatusMessage.style.color = 'green';
+                }
+                setTimeout(() => {
+                    allowedSitesStatusMessage.textContent = '';
+                    allowedSitesStatusMessage.style.color = ''; // Reset color
+                }, 3000);
+            });
+        });
+    } else {
+        if (!allowedSitesTextarea) console.warn("Element 'allowedSitesTextarea' not found for shortcut settings.");
+        if (!saveAllowedSitesButton) console.warn("Element 'saveAllowedSitesButton' not found for shortcut settings.");
+        if (!allowedSitesStatusMessage) console.warn("Element 'allowedSitesStatusMessage' not found for shortcut settings.");
+    }
+
+    // Customize shortcuts button
+    if (customizeShortcutsButton) {
+        customizeShortcutsButton.addEventListener('click', function() {
+            chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+        });
+    } else {
+        console.warn("Element 'customizeShortcutsButton' not found for shortcut settings.");
+    }
+}
+// --- END Shortcut Settings ---
 
 document.addEventListener('DOMContentLoaded', function() {
     // Tab switching logic
@@ -289,20 +355,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (languageSelect) {
-        languageSelect.addEventListener('change', function() {
+        languageSelect.addEventListener('change', async function() {
             const selectedLang = this.value;
-            chrome.storage.sync.set({ preferredLanguage: selectedLang }, function() {
-                if (chrome.runtime.lastError) {
-                    console.error('Error saving language preference:', chrome.runtime.lastError.message);
-                    return;
-                }
-                console.log('Language preference saved:', selectedLang);
-                document.documentElement.lang = selectedLang;
-                applyOptionsPageLocalizations();
-                renderPrompts(); 
+            chrome.storage.sync.set({ preferredLanguage: selectedLang }, async function() {
+                await loadLocaleMessages(selectedLang);
+                applyOptionsPageLocalizations_Custom();
+                if (typeof renderPrompts === 'function') renderPrompts();
+                if (typeof renderDeletedPrompts === 'function') renderDeletedPrompts();
+                // 不再刷新页面，保持当前tab和滚动等状态
             });
         });
     }
+
+    initializeShortcutSettings(); // Initialize shortcut settings
 
     // --- Form Submission Logic (Add/Edit Prompt) --- 
     if (addPromptForm) {
@@ -353,40 +418,51 @@ document.addEventListener('DOMContentLoaded', function() {
                             saveBtn.textContent = chrome.i18n.getMessage(buttonTextKey) || fallbackButtonText;
                         }
                     } 
-                } 
-            } catch (storageError) {
-                console.error('Failed to get settings from storage:', storageError);
-            }
-            
-            const finalTagsArray = finalTagsString ? finalTagsString.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
-            savePrompt(currentPromptId, finalTitle, promptContentValue, finalTagsArray, effectUrl, notes); // Pass notes to savePrompt
-        });
-    }
-
+                } // Closes IF_SETTINGS
+                // const finalTagsArray and savePrompt are now inside the main try block
+                const finalTagsArray = finalTagsString ? finalTagsString.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+                savePrompt(currentPromptId, finalTitle, promptContentValue, finalTagsArray, effectUrl, notes); // Pass notes to savePrompt
+            } catch (error) { // Closes the main try block (L389), starts catch block
+        console.error('Error in form submission process:', error);
+        const statusElement = document.getElementById('promptStatusMessage'); // Assumes 'promptStatusMessage' element exists for feedback
+        const errorMessage = chrome.i18n.getMessage('promptSaveError') || 'Error saving prompt. See console for details.';
+        if (statusElement) {
+          statusElement.textContent = errorMessage;
+          statusElement.className = 'status-message error'; // Ensure CSS for .error class is defined
+        } else {
+          alert(errorMessage);
+        }
+      } finally {
+        // This block executes regardless of success or error in try/catch.
+        // Useful for UI cleanup, like re-enabling the save button or resetting its text.
+        // Ensure savePromptButton and currentPromptId are accessible in this scope.
+        if (typeof savePromptButton !== 'undefined' && savePromptButton) {
+          const buttonTextKey = currentPromptId ? 'updatePromptButton' : 'savePromptButton';
+          const fallbackButtonText = currentPromptId ? 'Update Prompt' : 'Save Prompt';
+          savePromptButton.textContent = chrome.i18n.getMessage(buttonTextKey) || fallbackButtonText;
+          savePromptButton.disabled = false;
+        }
+      }
+    } // Closes async function(event) body
+    ); // Closes addEventListener call
+  } // Closes if (addPromptForm)
     // --- Prompt Management Functions (defined within DOMContentLoaded to access shared vars like existingPromptsContainer) ---
 function clearRecycleBin() {
     if (!confirm(chrome.i18n.getMessage('clearRecycleBinConfirmation') || '确定要清空回收站吗？此操作无法撤销。')) {
         return;
     }
     chrome.storage.local.set({ deletedPrompts: [] }, function() {
-        if (chrome.runtime.lastError) {
-            console.error('[clearRecycleBin] Error:', chrome.runtime.lastError.message);
-            alert(chrome.i18n.getMessage('clearRecycleBinError') || '清空失败，请重试。');
-            return;
+        // Callback for successful recycle bin clearing
+        console.log('Recycle bin has been cleared.');
+        if (typeof renderDeletedPrompts === 'function') {
+            renderDeletedPrompts(); // Re-render the list of deleted prompts if the function exists
+        } else {
+            console.warn('renderDeletedPrompts function not found after clearing recycle bin.');
         }
-        console.log('[clearRecycleBin] 回收站已清空');
-        renderDeletedPrompts();
-    });
-}
-
+    }); // Closes chrome.storage.local.set
+} // Closes clearRecycleBin function
+// Misplaced loadAndSetSiteSpecificUrls function (formerly lines 442-449) removed.
 function handlePermanentlyDeletePrompt(promptId) {
-    if (!promptId) {
-        console.error('[handlePermanentlyDeletePrompt] promptId is missing');
-        return;
-    }
-    if (!confirm(chrome.i18n.getMessage('permanentlyDeleteConfirmation') || '确定要永久删除该提示吗？此操作无法撤销。')) {
-        return;
-    }
     chrome.storage.local.get({ deletedPrompts: [] }, function(data) {
         if (chrome.runtime.lastError) {
             console.error('[handlePermanentlyDeletePrompt] Error during storage.get:', chrome.runtime.lastError.message);
@@ -647,7 +723,7 @@ if (needRender) return;
             if (prompts.length === 0) {
                 const empty = document.createElement('div');
                 empty.className = 'empty-state';
-                empty.textContent = chrome.i18n.getMessage('noPromptsSaved') || 'No prompts yet.';
+                empty.textContent = getMessage('noPromptsSaved') || 'No prompts yet.';
                 existingPromptsContainer.appendChild(empty);
                 return;
             }
@@ -805,7 +881,7 @@ function renderDeletedPrompts() {
         container.innerHTML = '';
         if (deletedPrompts.length === 0) {
             const p = document.createElement('p');
-            p.textContent = chrome.i18n.getMessage('recycleBinEmpty') || 'Recycle bin is empty.';
+            p.textContent = getMessage('recycleBinEmpty') || 'Recycle bin is empty.';
             container.appendChild(p);
             return;
         }
@@ -881,7 +957,67 @@ function renderDeletedPrompts() {
             });
         }
     });
-}); // Re-add closing for DOMContentLoaded
+
+function initializeCustomShortcutSetting() {
+    const shortcutKeyInput = document.getElementById('customShortcutKeyInput');
+    const saveButton = document.getElementById('saveCustomShortcutKeyButton');
+    const statusMessage = document.getElementById('customShortcutKeyStatusMessage');
+    const DEFAULT_SHORTCUT_KEY = '/';
+
+    if (!shortcutKeyInput || !saveButton || !statusMessage) {
+        console.warn('Custom shortcut key UI elements not found.');
+        return;
+    }
+
+    // Load saved shortcut key
+    chrome.storage.sync.get(['customPromptShortcutKey'], function(result) {
+        if (chrome.runtime.lastError) {
+            console.error('Error loading custom shortcut key:', chrome.runtime.lastError);
+            statusMessage.textContent = chrome.i18n.getMessage('errorLoadingSettings') || 'Error loading setting.'; // Assuming 'errorLoadingSettings' exists
+            statusMessage.className = 'status-message error';
+            shortcutKeyInput.value = DEFAULT_SHORTCUT_KEY; // Fallback to default
+            return;
+        }
+        shortcutKeyInput.value = result.customPromptShortcutKey || DEFAULT_SHORTCUT_KEY;
+    });
+
+    // Save shortcut key
+    saveButton.addEventListener('click', function() {
+        const newKey = shortcutKeyInput.value.trim();
+        if (newKey.length !== 1) {
+            statusMessage.textContent = chrome.i18n.getMessage('customShortcutKeyInvalid') || 'Invalid shortcut key. Please enter a single character.';
+            statusMessage.className = 'status-message error';
+            setTimeout(() => { statusMessage.textContent = ''; statusMessage.className = 'status-message'; }, 3000);
+            return;
+        }
+
+        chrome.storage.sync.set({ customPromptShortcutKey: newKey }, function() {
+            if (chrome.runtime.lastError) {
+                console.error('Error saving custom shortcut key:', chrome.runtime.lastError);
+                statusMessage.textContent = chrome.i18n.getMessage('errorSavingSettings') || 'Error saving.'; // Assuming 'errorSavingSettings' exists
+                statusMessage.className = 'status-message error';
+            } else {
+                statusMessage.textContent = chrome.i18n.getMessage('customShortcutKeySavedSuccess') || 'Shortcut key saved successfully. Reload open pages for the change to take effect.';
+                statusMessage.className = 'status-message success';
+            }
+            setTimeout(() => { statusMessage.textContent = ''; statusMessage.className = 'status-message'; }, 5000);
+        });
+    });
+}
+
+    // Initialize settings sections
+    // initializeTheme(); // Temporarily commented out
+    // initializeLanguageSetting();
+    // initializeApiKeySetting();
+    // initializeAutoTaggingSetting();
+    // initializeCustomSystemPromptSetting();
+    // initializeRecycleBinRetentionSetting();
+    // initializeShortcutSettings(); // Existing shortcut settings (site-specific, chrome shortcuts page)
+    // initializeCustomShortcutSetting(); // NEW: For custom prompt search key
+    // loadAndDisplayPrompts(); // Load prompts for 'My Prompts' tab
+    // loadAndDisplayRecycleBin(); // Load items for 'Recycle Bin' tab
+
+}); // Closes DOMContentLoaded
 
 // Global functions (like fetchAITitleAndTags) can remain outside if they don't rely on DOMContentLoaded variables directly
 // or be moved inside if preferred for consistency, but fetchAITitleAndTags is self-contained.
@@ -986,3 +1122,127 @@ Example for ${langName}: {"title": "${langName === 'Chinese' ? '示例 AI 标题
         return null; // Indicate failure to the caller
     }
 }
+
+// ====== 自定义i18n方案开始 ======
+let currentMessages = {};
+let currentLang = 'zh_CN';
+
+// 动态加载messages.json
+async function loadLocaleMessages(lang) {
+    const url = `/_locales/${lang}/messages.json`;
+    try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('加载语言包失败');
+        const json = await res.json();
+        currentMessages = {};
+        for (const key in json) {
+            if (json[key] && json[key].message) {
+                currentMessages[key] = json[key].message;
+            }
+        }
+        currentLang = lang;
+    } catch (e) {
+        console.error('加载语言包失败:', e);
+        currentMessages = {};
+    }
+}
+
+// 获取本地化文本
+function getMessage(key) {
+    return currentMessages[key] || '';
+}
+
+// 替换本地化渲染逻辑
+function applyOptionsPageLocalizations_Custom() {
+    // 按ID渲染
+    const elementsToLocalizeById = {
+        'pageTitle': 'promptManagerSettings',
+        'deepseekApiKeyLabelText': 'deepseekApiKeyLabel',
+        'saveApiKeyButton': 'saveApiKeyButton',
+        'apiKeyNoteText': 'aiKeyNote',
+        'generalSettingsHeadingText': 'generalSettingsHeading',
+        'languageSettingLabelText': 'languageSettingLabel',
+        'langEnglishOption': 'langEnglish',
+        'langChineseOption': 'langChinese',
+        'autoTaggingLabelText': 'autoTaggingLabel',
+        'customSystemPromptLabelText': 'customSystemPromptLabel',
+        'customSystemPromptDescriptionText': 'customSystemPromptDescription',
+        'addNewPromptHeadingText': 'addNewPromptHeading',
+        'promptTitleLabelText': 'promptTitleLabel',
+        'promptContentLabelText': 'promptContentLabel',
+        'promptTagsLabelText': 'promptTagsLabel',
+        'promptEffectUrlLabelText': 'promptEffectUrlLabel',
+        'promptNotesLabelText': 'promptNotesLabel',
+        'existingPromptsHeadingText': 'existingPromptsHeading',
+        // Shortcut Settings
+        'shortcutSettingsHeadingText': 'shortcutSettingsHeading',
+        'siteSpecificActivationHeadingText': 'siteSpecificActivationHeading',
+        'siteSpecificActivationDescriptionText': 'siteSpecificActivationDescription',
+        'allowedSitesLabelText': 'allowedSitesLabel',
+        'customizeShortcutsHeadingText': 'customizeShortcutsHeading',
+        'customizeShortcutsDescriptionText': 'customizeShortcutsDescription',
+        'saveAllowedSitesButton': 'saveAllowedSitesButton',
+        'customizeShortcutsButton': 'customizeShortcutsButton',
+    };
+    for (const id in elementsToLocalizeById) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = getMessage(elementsToLocalizeById[id]);
+    }
+    // data-i18n-key
+    document.querySelectorAll('[data-i18n-key]').forEach(element => {
+        const key = element.dataset.i18nKey;
+        const message = getMessage(key);
+        if (message) {
+            element.textContent = message;
+        }
+    });
+    // data-i18n-placeholder-key
+    document.querySelectorAll('[data-i18n-placeholder-key]').forEach(element => {
+        const key = element.dataset.i18nPlaceholderKey;
+        const message = getMessage(key);
+        if (message) {
+            element.placeholder = message;
+        }
+    });
+    // 页面标题
+    document.title = getMessage('promptManagerSettings') || 'Prompt Manager Settings';
+}
+
+// ====== 自定义i18n方案结束 ======
+
+// 语言初始化和切换
+async function initI18nAndRender() {
+    // 1. 获取用户设置语言
+    let lang = 'zh_CN';
+    await new Promise(resolve => {
+        chrome.storage.sync.get('preferredLanguage', function(data) {
+            lang = data.preferredLanguage || 'zh_CN';
+            resolve();
+        });
+    });
+    // 2. 加载语言包
+    await loadLocaleMessages(lang);
+    // 3. 渲染
+    applyOptionsPageLocalizations_Custom();
+    // 4. 设置下拉框选中
+    const languageSelect = document.getElementById('languageSelect');
+    if (languageSelect) languageSelect.value = lang;
+}
+
+// 监听语言切换
+const languageSelect = document.getElementById('languageSelect');
+if (languageSelect) {
+    languageSelect.addEventListener('change', async function() {
+        const selectedLang = this.value;
+        chrome.storage.sync.set({ preferredLanguage: selectedLang }, async function() {
+            await loadLocaleMessages(selectedLang);
+            applyOptionsPageLocalizations_Custom();
+            if (typeof renderPrompts === 'function') renderPrompts();
+            if (typeof renderDeletedPrompts === 'function') renderDeletedPrompts();
+            // 不再刷新页面，保持当前tab和滚动等状态
+        });
+    });
+}
+
+// 页面加载时初始化
+initI18nAndRender();

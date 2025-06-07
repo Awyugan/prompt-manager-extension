@@ -16,7 +16,7 @@ async function getAIAttributes(text) {
     });
   });
   const langActual = preferredLanguage || 'en';
-  const langName = langActual === 'zh' ? 'Chinese' : 'English';
+  const langName = (langActual === 'zh' || langActual === 'zh_CN') ? 'Chinese' : 'English';
 
   const { deepseekApiKey: apiKey } = await new Promise(resolve =>
     chrome.storage.local.get('deepseekApiKey', result => resolve(result))

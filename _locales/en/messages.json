@@ -1,4 +1,6 @@
 { 
+  "exportPromptsBtn": { "message": "Export Prompts", "description": "Export prompts to file" },
+  "importPromptsBtn": { "message": "Import Prompts", "description": "Import prompts from file" },
   "backToOptions": { "message": "← Return to Prompt Management" },
   "settingsPageTitle": { "message": "Extension Settings" },
   "apiKeySectionTitle": { "message": "API Key Configuration" },
@@ -40,7 +42,7 @@
   "generatingAIText": { "message": "Generating AI suggestions..." },
   "languageSettingLabel": { "message": "Interface Language:" },
   "langEnglish": { "message": "English" },
-  "langChinese": { "message": "中文 (Chinese)" },
+  "langChinese": { "message": "Chinese (Simplified)" },
   "notificationTitle": { "message": "Prompt Saved" },
   "noPromptsSaved": { "message": "No prompts saved yet." },
   "noTags": { "message": "No tags" },
@@ -48,7 +50,7 @@
   "effect": { "message": "Effect" },
   "untitled": { "message": "Untitled" },
   "tags": { "message": "Tags" },
-  "notificationMessage": { "message": "Prompt \"{title}\" has been saved successfully!", "placeholders": { "title": { "content": "$1", "example": "Sample Prompt" } } },
+  "notificationMessage": { "message": "Prompt \"$title$\" has been saved successfully!", "placeholders": { "title": { "content": "$1", "example": "Sample Prompt" } } },
   "customSystemPromptLabelText": {
     "message": "Custom AI System Prompt (supports ${langName} placeholder):",
     "description": "Label for the custom AI system prompt textarea."
@@ -80,7 +82,7 @@
     "description": "Placeholder text for the DeepSeek API Key input field."
   },
   "moveToRecycleBinConfirmation": {
-    "message": "Are you sure you want to move the prompt \"{title}\" to the Recycle Bin?",
+    "message": "Are you sure you want to move the prompt \"$title$\" to the Recycle Bin?",
     "description": "Confirmation message when a user tries to delete a prompt, which now moves it to the recycle bin.",
     "placeholders": {
       "title": {
@@ -145,6 +147,19 @@
     "message": "Failed to clear. Please try again.",
     "description": "Error message when clearing the recycle bin fails."
   },
+  "promptTitleLabelText": { "message": "Title:" },
+  "promptContentLabelText": { "message": "Content:" },
+  "promptTagsLabelText": { "message": "Tags (comma-separated):" },
+  "promptEffectUrlLabelText": { "message": "Effect URL (optional):" },
+  "promptNotesLabelText": { "message": "Notes:" },
+  "addNewPromptHeadingText": {
+    "message": "Add/Edit Prompt",
+    "description": "Heading for the add/edit prompt form"
+  },
+  "existingPromptsHeadingText": {
+    "message": "Existing Prompts",
+    "description": "Heading for the existing prompts section"
+  },
   "customSystemPromptLabel": {
     "message": "Custom System Prompt",
     "description": "Label for the custom system prompt textarea in settings."
@@ -152,5 +167,97 @@
   "customSystemPromptDescription": {
     "message": "Define a custom system-level prompt that will be implicitly prepended to your actual prompts when interacting with certain AI models. This can be used to set context, tone, or provide specific instructions to the AI.",
     "description": "Description for the custom system prompt feature in settings."
+  },
+  "permanentlyDeleteConfirmation": {
+    "message": "Are you sure you want to permanently delete this prompt? This action cannot be undone.",
+    "description": "Confirmation message when a user tries to permanently delete a prompt from the recycle bin."
+  },
+  "shortcutSettingsHeading": {
+    "message": "Shortcut Settings",
+    "description": "Heading for the shortcut settings section."
+  },
+  "siteSpecificActivationHeading": {
+    "message": "Site-Specific Activation",
+    "description": "Heading for the site-specific shortcut activation feature."
+  },
+  "siteSpecificActivationDescription": {
+    "message": "Activate shortcuts only on these websites. Enter one URL pattern per line (e.g., https://*.example.com/* or www.google.com). If empty, shortcuts are active on all sites.",
+    "description": "Description for the site-specific activation feature."
+  },
+  "allowedSitesLabel": {
+    "message": "Allowed Websites (one per line):",
+    "description": "Label for the textarea where users input allowed websites."
+  },
+  "saveAllowedSitesButton": {
+    "message": "Save Allowed Sites",
+    "description": "Button text to save the list of allowed sites."
+  },
+  "allowedSitesStatusLoading": {
+    "message": "Loading...",
+    "description": "Status message while loading allowed sites."
+  },
+  "allowedSitesStatusSuccess": {
+    "message": "Allowed sites saved successfully.",
+    "description": "Success message after saving allowed sites."
+  },
+  "allowedSitesStatusError": {
+    "message": "Error saving allowed sites. Please check console for details.",
+    "description": "Error message if saving allowed sites fails."
+  },
+  "customizeShortcutsHeading": {
+    "message": "Customize Shortcuts",
+    "description": "Heading for the shortcut customization section."
+  },
+  "customizeShortcutsDescription": {
+    "message": "Manage your extension shortcuts, such as activating the prompt list or opening the main panel.",
+    "description": "Description for the shortcut customization section."
+  },
+  "customizeShortcutsButton": {
+    "message": "Open Shortcut Settings",
+    "description": "Button text to open Chrome's extension shortcut settings page."
+  },
+  "customPromptShortcutKeyHeading": {
+    "message": "Prompt Search Shortcut Key",
+    "description": "Heading for the custom prompt search shortcut key setting."
+  },
+  "customPromptShortcutKeyLabel": {
+    "message": "Set Trigger Key:",
+    "description": "Label for the custom shortcut key input field."
+  },
+  "customPromptShortcutKeyDescription": {
+    "message": "Enter a single character (e.g., / or #). This key, when pressed in an editable field, will open the prompt search. Default is '/'. Changes apply after reloading pages.",
+    "description": "Description for the custom shortcut key setting."
+  },
+  "customPromptShortcutKeyPlaceholder": {
+    "message": "e.g., /",
+    "description": "Placeholder for the custom shortcut key input field."
+  },
+  "saveCustomShortcutKeyButton": {
+    "message": "Save Shortcut Key",
+    "description": "Button text to save the custom shortcut key."
+  },
+  "customShortcutKeySavedSuccess": {
+    "message": "Shortcut key saved successfully. Reload open pages for the change to take effect.",
+    "description": "Success message after saving the shortcut key."
+  },
+  "customShortcutKeyInvalid": {
+    "message": "Invalid shortcut key. Please enter a single character.",
+    "description": "Error message for invalid shortcut key input."
+  },
+  "customShortcutKeyDefaultNote": {
+    "message": "The default shortcut key is '/'.",
+    "description": "Note about the default shortcut key."
+  },
+  "shortcutKeySavedSuccess": {
+    "message": "Shortcut key saved successfully!",
+    "description": "Success message after saving the shortcut key."
+  },
+  "shortcutKeySaveError": {
+    "message": "Failed to save shortcut key. Please try again.",
+    "description": "Error message when saving the shortcut key fails."
+  },
+  "shortcutKeyInvalid": {
+    "message": "Please enter a valid single character for the shortcut key.",
+    "description": "Error message when an invalid shortcut key is entered."
   }
 }

@@ -1,19 +1,75 @@
-# Prompt Manager Chrome Extension
+# Prompt Manager Extension
 
-This is a Chrome extension for managing prompts.
+**Manage and inject your prompts directly into any webpage.**
 
-## How to Load the Extension
+## Overview
 
-1.  Open Google Chrome.
-2.  Navigate to `chrome://extensions`.
-3.  Enable "Developer mode" using the toggle switch in the top right corner.
-4.  Click on the "Load unpacked" button.
-5.  Select the `prompt-manager-extension` directory (the one containing `manifest.json`).
+The Prompt Manager Extension is a powerful Chrome extension designed to streamline your workflow by allowing you to store, categorize, and quickly inject your frequently used prompts into any text input field on any webpage. Whether you're working with AI models, chatbots, or just need quick access to predefined text snippets, this extension makes it effortless.
 
-The extension icon should now appear in your Chrome toolbar.
+## Features
 
-## Development Notes
+*   **Prompt Management:** Store and organize an unlimited number of prompts.
+*   **Quick Injection:** Easily inject prompts into text areas or input fields with a single click or keyboard shortcut.
+*   **Context Menu Integration:** Access your prompts directly from the browser's right-click context menu.
+*   **Persistent Storage:** All your prompts and settings are saved locally in your browser.
+*   **Multi-language Support:** (If applicable, based on `_locales` directory)
 
-*   **Icons**: You'll need to add your own icons (e.g., `icon16.png`, `icon48.png`, `icon128.png`) to the `icons` folder. Placeholder paths are currently in `manifest.json`.
-*   **Functionality**: This is a basic skeleton. You'll need to expand on the JavaScript files (`popup.js`, `options.js`, `background.js`) to implement full CRUD (Create, Read, Update, Delete) functionality for prompts, integrate with any external APIs (like DeepSeek), and add features like tagging, categorization, search, etc.
-*   **Permissions**: The `manifest.json` currently requests `storage` (for local data), `activeTab`, and `scripting` (if you need to interact with web pages). Adjust as needed.
+## Installation
+
+### From Source (Developer Mode)
+
+1.  **Download:** Clone or download this repository to your local machine.
+    ```bash
+    git clone https://github.com/awyugan/prompt-manager-extension.git
+    cd prompt-manager-extension
+    ```
+2.  **Build:** Run the build script to package the extension.
+    ```bash
+    chmod +x build_chrome_web_store.sh
+    ./build_chrome_web_store.sh
+    ```
+    This will create a `.zip` file in the `dist/` directory.
+3.  **Open Chrome Extensions Page:**
+    *   Open your Chrome browser.
+    *   Navigate to `chrome://extensions` or click the three-dot menu (⋮) > `More tools` > `Extensions`.
+4.  **Enable Developer Mode:** Toggle on the "Developer mode" switch in the top right corner.
+5.  **Load Unpacked/Load Zipped:**
+    *   If you want to load from the source directory, click "Load unpacked" and select the `prompt-manager-extension` directory.
+    *   Alternatively, if you built the `.zip` file, click "Load zipped" or "Load unpacked" and drag the `.zip` file (or the unzipped `dist` folder) into the extensions page.
+6.  **Enjoy:** The Prompt Manager Extension icon should now appear in your browser toolbar.
+
+### From Chrome Web Store (Coming Soon)
+
+_Once the extension is published on the Chrome Web Store, you will be able to install it directly from there._
+
+## Usage
+
+1.  **Open the Extension Popup:** Click the Prompt Manager Extension icon in your Chrome toolbar.
+2.  **Manage Prompts:** Use the extension's options page (right-click the icon > "Options") to add, edit, or delete your custom prompts.
+3.  **Inject Prompts:**
+    *   Navigate to any webpage with a text input field.
+    *   Click on the extension icon and select the prompt you want to inject.
+    *   Alternatively, right-click inside a text area, hover over "Prompt Manager", and select your desired prompt.
+
+## Permissions Explained
+
+The Prompt Manager Extension requests the following permissions to provide its full functionality:
+
+*   **`storage`**: Used to save your custom prompts and extension settings locally in your browser.
+*   **`activeTab`**: Allows the extension to temporarily access the current active tab when invoked, typically by clicking the extension icon.
+*   **`scripting`**: Enables the extension to inject content scripts into web pages to manage and insert prompts into text fields.
+*   **`contextMenus`**: Used to add "Prompt Manager" options to your browser's right-click context menu for quick access.
+*   **`notifications`**: To send you occasional notifications, e.g., for updates or important information.
+*   **Host Permissions (`<all_urls>`)**: Required to inject content scripts across all web pages, which is essential for the extension to interact with text fields on any website.
+
+For a detailed explanation of how we handle your data, please refer to our [Privacy Policy](/privacy%20policy.md).
+
+## Contributing
+
+Contributions are welcome! If you have suggestions for improvements, bug reports, or would like to contribute code, please feel free to open an issue or submit a pull request on the GitHub repository.
+
+## Contact
+
+For any questions or support, please open an issue on the GitHub repository or contact us at:
+
+[awyugan@gmail.com](awyugan@gmail.com)
